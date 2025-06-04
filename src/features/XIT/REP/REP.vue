@@ -40,17 +40,14 @@ const currentSplitIndex = computed(() => {
   if (buildingEntries.value === undefined) {
     return undefined;
   }
-  const settings = userData.settings.repair;
-  const currentSplitDate =
-    timestampEachMinute.value - settings.threshold * msInADay + settings.offset * msInADay;
-  return binarySearch(currentSplitDate, buildingEntries.value, x => x.lastRepair);
+  return binarySearch(userData.settings.repair.threshold / 100, buildingEntries.value, x => x.condition);
 });
 
 const visibleBuildings = computed(() => {
   return buildingEntries.value?.slice(0, currentSplitIndex.value);
 });
 
-const visibleShips = computed(() => shipEntries.value?.filter(x => x.condition <= 0.85));
+const visibleShips = computed(() => shipEntries.value?.filter(x => x.condition <= userData.settings.repair.threshold / 100));
 
 const materials = computed(() => {
   if (visibleBuildings.value === undefined || visibleShips.value === undefined) {
@@ -81,7 +78,7 @@ function calculateAge(lastRepair: number) {
   <LoadingSpinner v-if="materials === undefined" />
   <template v-else>
     <form>
-      <Active label="Age Threshold">
+      <Active label="Condition Threshold">
         <NumberInput v-model="userData.settings.repair.threshold" />
       </Active>
       <Active label="Time Offset">
@@ -104,7 +101,7 @@ function calculateAge(lastRepair: number) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="entry in visibleBuildings" :key="objectId(entry)">
+        <tr v-for="entry in visibleBuildings" :key="objectId(entry)" >
           <td>{{ entry.ticker }}</td>
           <td v-if="isMultiTarget">
             <PrunLink :command="`XIT REP ${entry.naturalId}`">{{ entry.target }}</PrunLink>

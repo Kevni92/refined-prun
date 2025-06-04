@@ -22,7 +22,7 @@ const planets = computed(() => {
 const planet = ref(group.planet ?? planets.value[0]);
 const planetError = ref(false);
 
-const days = ref(typeof group.days === 'string' ? parseInt(group.days || '0') : group.days);
+const percentage = ref(typeof group.percentage === 'string' ? parseInt(group.percentage || '0') : group.percentage);
 
 const advanceDays = ref(
   typeof group.advanceDays === 'string'
@@ -42,7 +42,7 @@ function validate() {
 
 function save() {
   group.planet = planet.value;
-  group.days = days.value;
+  group.percentage = percentage.value;
   group.advanceDays = advanceDays.value;
 }
 
@@ -54,10 +54,10 @@ defineExpose({ validate, save });
     <SelectInput v-model="planet" :options="planets" />
   </Active>
   <Active
-    label="Day Threshold"
+    label="Building Percentage"
     tooltip="All buildings older than this threshold will be repaired.
      If no number is provided all buildings are repaired.">
-    <NumberInput v-model="days" optional />
+    <NumberInput :min="0" :max="100" v-model="percentage" optional />
   </Active>
   <Active
     label="Time Offset"

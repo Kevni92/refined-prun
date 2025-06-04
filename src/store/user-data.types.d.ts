@@ -53,9 +53,9 @@ declare namespace UserData {
   interface MaterialGroupData {
     type: MaterialGroupType;
     name?: string;
-    days?: number | string;
     advanceDays?: number | string;
     planet?: string;
+    percentage?: number;
     useBaseInv?: boolean;
     materials?: Record<string, number>;
     exclusions?: string[];

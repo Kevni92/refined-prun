@@ -13,10 +13,8 @@ act.addMaterialGroup<Config>({
       return '--';
     }
 
-    const days = data.days;
-    const daysPart = days !== undefined ? `older than ${days} day${days == 1 ? '' : 's'}` : '';
-    const advanceDays = data.advanceDays ?? 0;
-    return `Repair buildings on ${data.planet} ${daysPart} in ${advanceDays} day${advanceDays == 1 ? '' : 's'}`;
+    const percentage = data.percentage;
+    return `Repair buildings on ${data.planet} with lower condition as ${percentage}%`;
   },
   editComponent: Edit,
   configureComponent: Configure,
@@ -35,12 +33,11 @@ act.addMaterialGroup<Config>({
       return undefined;
     }
 
-    const days = typeof data.days === 'number' ? data.days : parseFloat(data.days!);
-    let advanceDays =
-      typeof data.advanceDays === 'number' ? data.advanceDays : parseFloat(data.advanceDays!);
-    const threshold = isNaN(days) ? 0 : days;
+    let advanceDays = typeof data.advanceDays === 'number' ? data.advanceDays : parseFloat(data.advanceDays!);
     advanceDays = isNaN(advanceDays) ? 0 : advanceDays;
 
+    const percentage = (data.percentage || 0) / 100;
+console.log(percentage);
     const parsedGroup = {};
     for (const building of site.platforms) {
       if (!isRepairableBuilding(building)) {
@@ -50,7 +47,7 @@ act.addMaterialGroup<Config>({
       const lastRepair = getBuildingLastRepair(building);
       const date = (new Date().getTime() - lastRepair) / 86400000;
 
-      if (date + advanceDays < threshold) {
+      if (building.condition > percentage) {
         continue;
       }
 
