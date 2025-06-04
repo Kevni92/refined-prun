@@ -19,8 +19,8 @@ export const initialUserData = deepFreeze({
       ignoredMaterials: 'HEX,JUI',
     },
     pricing: {
-      exchange: 'UNIVERSE',
-      method: 'DEFAULT' as UserData.PricingMethod,
+      exchange: 'IC1',
+      method: 'ASK' as UserData.PricingMethod,
     },
     burn: {
       red: 3,

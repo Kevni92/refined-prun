@@ -111,6 +111,19 @@ function weightedAverage<T>(
 const ignored = computed(() => new Set(userData.settings.financial.ignoredMaterials.split(',')));
 const mmMaterials = computed(() => new Set(userData.settings.financial.mmMaterials.split(',')));
 
+export function getPriceFullTicker(ticker?: string | null) {
+  if (!ticker) {
+    return undefined;
+  }
+
+  if (!cxStore.fetched) {
+    return undefined;
+  }
+
+  const [materialCode, exchangeCode] = ticker.toUpperCase().split(".");
+  return cxStore.prices.get(exchangeCode)?.get(materialCode);
+}
+
 export function getPrice(ticker?: string | null) {
   if (!ticker) {
     return undefined;
