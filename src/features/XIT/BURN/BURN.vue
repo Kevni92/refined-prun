@@ -12,6 +12,10 @@ import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { isDefined, isEmpty } from 'ts-extras';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { countDays } from '@src/features/XIT/BURN/utils';
+import Active from '@src/components/forms/Active.vue';
+import TextInput from '@src/components/forms/TextInput.vue';
+import PrunButton from '@src/components/PrunButton.vue';
+import Passive from '@src/components/forms/Passive.vue';
 
 const parameters = useXitParameters();
 const isBurnAll = isEmpty(parameters) || parameters[0].toLowerCase() == 'all';
@@ -70,6 +74,8 @@ const yellow = useTileState('yellow');
 const green = useTileState('green');
 const inf = useTileState('inf');
 
+const materialFilter = useTileState('materialFilter');
+
 const fakeBurn: MaterialBurn = {
   DailyAmount: -100000,
   DaysLeft: 10,
@@ -103,6 +109,9 @@ function onExpandAllClick() {
       <FilterButton v-model="yellow">YELLOW</FilterButton>
       <FilterButton v-model="green">GREEN</FilterButton>
       <FilterButton v-model="inf">INF</FilterButton>
+        <Passive label="Filter:">
+            <TextInput v-model="materialFilter" dark />
+        </Passive>
     </div>
     <table>
       <thead>
@@ -133,11 +142,14 @@ function onExpandAllClick() {
       <tbody :class="$style.fakeRow">
         <MaterialRow always-visible :burn="fakeBurn" :material="rat" />
       </tbody>
+      
       <BurnSection
         v-for="burn in planetBurn"
         :key="burn.planetName"
         :can-minimize="sites.length > 1"
         :burn="burn" />
+
+
     </table>
   </template>
 </template>

@@ -5,5 +5,6 @@ export const useTileState = createTileStateHook({
   yellow: true,
   green: true,
   inf: true,
+  materialFilter: "",
   expand: [] as string[],
 });

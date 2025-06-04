@@ -27,8 +27,11 @@ const red = useTileState('red');
 const yellow = useTileState('yellow');
 const green = useTileState('green');
 const inf = useTileState('inf');
+const materialFilter = useTileState('materialFilter');
 
 const isVisible = computed(() => {
+  if (materialFilter.value.length > 0 && materialFilter.value.toUpperCase() != material.ticker.toUpperCase()) return false;
+
   if (alwaysVisible) {
     return true;
   }
@@ -48,6 +51,7 @@ const changeText = computed(() => {
 
 const changeClass = computed(() => ({
   [C.ColoredValue.positive]: production.value > 0,
+  [C.ColoredValue.negative]: production.value < 0,
 }));
 
 const needAmt = computed(() => {
@@ -75,7 +79,7 @@ const needAmt = computed(() => {
       <span :class="changeClass">{{ changeText }}</span>
     </td>
     <td>
-      <span>{{ isNaN(needAmt) ? '0' : fixed0(needAmt) }}</span>
+      <span>{{ isNaN(needAmt) ? '' : fixed0(needAmt) }}</span>
     </td>
     <DaysCell :days="days" />
     <td>
