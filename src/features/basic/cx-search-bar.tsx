@@ -15,7 +15,7 @@ function onTileReady(tile: PrunTile) {
 async function onComExPanelReady(comExPanel: HTMLElement) {
   const actionBar = await $(comExPanel, C.ActionBar.container);
   const select = await $(actionBar, 'select');
-  const selectValue = refValue(select);
+  let selectValue = refValue(select);
   const searchText = ref('');
 
   const categoryOptions = new Map<string, HTMLElement>();
@@ -59,8 +59,8 @@ async function onComExPanelReady(comExPanel: HTMLElement) {
     }
     for (const material of materials) {
       if (
-        material.ticker.includes(searchTerm) ||
-        getMaterialName(material)?.toUpperCase().includes(searchTerm)
+        material.ticker == searchTerm/* ||
+        getMaterialName(material)?.toUpperCase().includes(searchTerm)*/
       ) {
         const optionElement = categoryOptions.get(material.category);
         if (optionElement) {
@@ -72,6 +72,14 @@ async function onComExPanelReady(comExPanel: HTMLElement) {
         }
       }
     }
+    
+    const visibleCategories = Array.from(categoryOptions.values()).filter(category => !category.classList.contains(css.hidden));
+
+    if (visibleCategories.length == 1) {
+      select.selectedIndex = (visibleCategories[0] as HTMLOptionElement).index;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
   });
 
   createFragmentApp(() => (
