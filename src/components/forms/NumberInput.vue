@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { optional } = defineProps<{ optional?: boolean }>();
+const { optional } = defineProps<{ optional?: boolean, min?: number, max?: number }>();
 
 const model = defineModel<number | undefined>();
 
@@ -23,6 +23,8 @@ const inputModel = computed({
 <template>
   <div>
     <input
+      :min="min"
+      :max="max"
       v-model="inputModel"
       type="number"
       autocomplete="off"

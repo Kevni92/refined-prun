@@ -1,5 +1,6 @@
 import './actions/cx-buy/cx-buy';
 import './actions/mtra/mtra';
+import './actions/sfc/sfc';
 
 import './material-groups/repair/repair';
 import './material-groups/resupply/resupply';

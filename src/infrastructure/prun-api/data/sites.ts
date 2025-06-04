@@ -5,13 +5,20 @@ import {
 import { createEntityStore } from '@src/infrastructure/prun-api/data/create-entity-store';
 import { onApiMessage } from '@src/infrastructure/prun-api/data/api-messages';
 import { createMapGetter } from '@src/infrastructure/prun-api/data/create-map-getter';
+import { replacePlanetNameWithLocal } from '@src/infrastructure/prun-api/data/replace-planet-name-with-local';
 
 const store = createEntityStore<PrunApi.Site>(x => x.siteId);
 const state = store.state;
 
+
+
+
+
 onApiMessage({
   SITE_SITES(data: { sites: PrunApi.Site[] }) {
-    store.setAll(data.sites);
+    let sites = replacePlanetNameWithLocal(data.sites);
+
+    store.setAll(sites);
     store.setFetched();
   },
   SITE_SITE(data: PrunApi.Site) {

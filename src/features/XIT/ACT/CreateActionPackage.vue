@@ -23,7 +23,7 @@ function onCreateClick() {
 }
 
 function hasValidChars() {
-  return /^[0-9a-zA-Z.-]*$/.test(name.value);
+  return /^[ 0-9a-zA-Z.-]*$/.test(name.value);
 }
 </script>
 
