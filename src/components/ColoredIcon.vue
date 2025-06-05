@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ColoredIconDetail from '@src/components/ColoredIconDetail.vue';
 
-export type ColoredIconSize = 'large' | 'medium' | 'small' | 'inline' | 'inline-table';
+export type ColoredIconSize = 'large' | 'medium' | 'small' | 'inline' | 'inline-table' | 'broker-table';
 
 const {
   background,
@@ -26,6 +26,7 @@ const classes = computed(() => ({
   [$style.small]: size === 'small',
   [$style.inline]: size === 'inline',
   [$style.inlineTable]: size === 'inline-table',
+  [$style.brokerTable]: size === 'broker-table',
 }));
 </script>
 
@@ -67,5 +68,11 @@ const classes = computed(() => ({
   height: 18px;
   width: 32px;
   font-size: 11px;
+}
+
+.brokerTable {
+  height: 28px;
+  width: 28px;
+  font-size: 9.24px;
 }
 </style>

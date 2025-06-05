@@ -63,6 +63,9 @@ export const initialUserData = deepFreeze({
     hidden: [] as string[],
   },
   commandLists: [] as UserData.CommandList[],
+  favorites: {
+    ticker: []
+  } as UserData.Favorites
 });
 
 export const userData = reactive({} as typeof initialUserData);

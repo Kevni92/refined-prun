@@ -4,6 +4,10 @@ declare namespace UserData {
     v2: UserData.BalanceSheetDataV2[];
   }
 
+  interface Favorites {
+    ticker: string[]
+  }
+
   type BalanceSheetDataV1 = [
     timestamp: number,
     currentAssets: number,

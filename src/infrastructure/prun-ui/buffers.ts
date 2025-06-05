@@ -21,21 +21,22 @@ interface ShowBufferOptions {
   force?: boolean;
   autoSubmit?: boolean;
   autoClose?: boolean;
+  hide?: boolean;
   closeWhen?: Ref<boolean>;
 }
 
-export async function showBuffer(command: string, options?: ShowBufferOptions) {
+export async function showBuffer(command: string, options?: ShowBufferOptions) : Promise<HTMLDivElement> {
   if (!options?.force) {
     const existing = tiles.find(command).find(x => !x.docked);
     if (existing) {
       const window = existing.frame.closest(`.${C.Window.window}`)!;
       const command = UI_WINDOWS_REQUEST_FOCUS(existing.id);
       if (dispatchClientPrunMessage(command)) {
-        return window;
+        return window as HTMLDivElement;
       }
       const header = _$(window, C.Window.header);
       void clickElement(header);
-      return window;
+      return window as HTMLDivElement;
     }
   }
   await acquireSlot();
@@ -93,7 +94,8 @@ async function processWindow(window: HTMLDivElement, command: string, options?: 
   window.classList.add(css.hidden);
   const tile = _$(window, C.Tile.tile);
   const id = getPrunId(tile!);
-  if (options?.autoClose) {
+
+  if (options?.autoClose || options?.hide) {
     const dockLabel = id?.padStart(2, '0');
     const dockTab = _$$(document, C.Dock.buffer).find(
       x => _$(x, C.Dock.title)?.textContent === dockLabel,
@@ -113,19 +115,23 @@ async function processWindow(window: HTMLDivElement, command: string, options?: 
     new Promise<void>(resolve => onNodeDisconnected(input, resolve)),
     $(selector, C.Tile.warning),
   ]);
-  if (!options?.autoClose) {
+  if (!options?.autoClose && !options?.hide) {
     window.classList.remove(css.hidden);
+    return;
+  }
+  else if (options?.hide) {
     return;
   }
   void closeWhenDone(window, options);
 }
 
-async function closeWhenDone(window: HTMLDivElement, options?: ShowBufferOptions) {
+export async function closeWhenDone(window: HTMLDivElement, options?: ShowBufferOptions) {
   await sleep(0);
   const closeWhen = options?.closeWhen;
   if (closeWhen) {
     await watchUntil(closeWhen);
   }
+
   const buttons = _$$(window, C.Window.button);
   const closeButton = buttons.find(x => x.textContent === 'x');
   if (closeButton) {
