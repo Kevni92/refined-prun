@@ -26,8 +26,14 @@ const emit = defineEmits<{
 const expanded = ref(false);
 
 const transfer = computed(() => assignments.reduce((a, b) => a + b.amount, 0));
+const importTotal = computed(() =>
+  assignments.reduce((a, b) => (b.amount > 0 ? a + b.amount : a), 0),
+);
+const exportTotal = computed(() =>
+  assignments.reduce((a, b) => (b.amount < 0 ? a - b.amount : a), 0),
+);
 const sum = computed(
-  () => (burn.Inventory ?? 0) + burn.output - (burn.input + burn.workforce) + transfer.value,
+  () => burn.output - (burn.input + burn.workforce) + transfer.value,
 );
 
 function openAdd(ev: Event) {
@@ -36,6 +42,10 @@ function openAdd(ev: Event) {
     ticker: material.ticker,
     onSave: (siteId: string, amount: number) => emit('add-assignment', siteId, amount),
   });
+}
+
+function removeAssignment(index: number) {
+  assignments.splice(index, 1);
 }
 
 function siteName(id: string) {
@@ -49,21 +59,24 @@ function siteName(id: string) {
     <td :class="$style.materialContainer">
       <MaterialIcon size="inline-table" :ticker="material.ticker" />
     </td>
-    <td>{{ fixed0(burn.Inventory ?? 0) }}</td>
-    <td>{{ fixed0(burn.input + burn.workforce) }}</td>
-    <td>{{ fixed0(burn.output) }}</td>
-    <td :class="{ [C.ColoredValue.positive]: transfer > 0, [C.ColoredValue.negative]: transfer < 0 }">
-      {{ fixed0(transfer) }}
-    </td>
+    <td :class="C.ColoredValue.negative">-{{ fixed0(burn.input + burn.workforce) }}</td>
+    <td :class="C.ColoredValue.positive">+{{ fixed0(burn.output) }}</td>
+    <td>{{ fixed0(importTotal) }}</td>
+    <td>{{ fixed0(exportTotal) }}</td>
     <td>{{ fixed0(sum) }}</td>
     <td>
       <PrunButton dark inline @click.stop="openAdd">ADD</PrunButton>
     </td>
   </tr>
   <tr v-if="expanded" v-for="(a, i) in assignments" :key="i">
-    <td colspan="7" :class="$style.assignment">
-      {{ a.amount > 0 ? 'Import' : 'Export' }} {{ fixed0(Math.abs(a.amount)) }}
-      {{ a.amount > 0 ? 'from' : 'to' }} {{ siteName(a.siteId) }}
+    <td></td>
+    <td :class="$style.assignment">{{ a.amount > 0 ? siteName(a.siteId) : '' }}</td>
+    <td :class="$style.assignment">{{ a.amount < 0 ? siteName(a.siteId) : '' }}</td>
+    <td :class="$style.assignment">{{ a.amount > 0 ? fixed0(a.amount) : '' }}</td>
+    <td :class="$style.assignment">{{ a.amount < 0 ? fixed0(-a.amount) : '' }}</td>
+    <td :class="$style.assignment"></td>
+    <td :class="$style.assignment">
+      <PrunButton danger dark inline @click.stop="removeAssignment(i)">DEL</PrunButton>
     </td>
   </tr>
 </template>
