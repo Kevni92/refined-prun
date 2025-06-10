@@ -2,7 +2,7 @@ import { act } from '@src/features/XIT/ACT/act-registry';
 import Edit from '@src/features/XIT/ACT/actions/cx-buy/Edit.vue';
 import { CX_SELL } from '@src/features/XIT/ACT/action-steps/CX_SELL';
 import { fixed0, fixed02 } from '@src/utils/format';
-import { fillAmount } from '@src/features/XIT/ACT/actions/cx-buy/utils';
+import { fillAmount } from '@src/features/XIT/ACT/actions/cx-sell/utils';
 
 act.addAction({
   type: 'CX Sell',

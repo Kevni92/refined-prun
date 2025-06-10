@@ -1,7 +1,7 @@
 import { act } from '@src/features/XIT/ACT/act-registry';
 import { fixed0, fixed02 } from '@src/utils/format';
 import { changeInputValue, clickElement } from '@src/util';
-import { fillAmount } from '@src/features/XIT/ACT/actions/cx-buy/utils';
+import { fillAmount } from '@src/features/XIT/ACT/actions/cx-sell/utils';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { isDefined } from 'ts-extras';
 import { ExchangeTickersReverse } from '@src/legacy';
