@@ -2,7 +2,7 @@ import { act } from '@src/features/XIT/ACT/act-registry';
 import Edit from '@src/features/XIT/ACT/actions/cx-buy/Edit.vue';
 import { CX_SELL } from '@src/features/XIT/ACT/action-steps/CX_SELL';
 import { fixed0, fixed02 } from '@src/utils/format';
-import { fillAmount } from '@src/features/XIT/ACT/actions/cx-buy/utils';
+import { fillAmount } from '@src/features/XIT/ACT/actions/cx-sell/utils';
 
 act.addAction({
   type: 'CX Sell',
@@ -24,7 +24,7 @@ act.addAction({
 
     const exchange = data.exchange;
     if (!exchange) {
-      log.error('Missing exchange on CX buy');
+      log.error('Missing exchange on CX sell');
     }
 
     if (!materials || !exchange) {
@@ -67,7 +67,7 @@ act.addAction({
 
       if (filled && filled.amount < amount) {
         if (!data.buyPartial) {
-          let message = `Not enough materials on ${exchange} to buy ${fixed0(amount)} ${ticker}`;
+          let message = `Not enough demand on ${exchange} to sell ${fixed0(amount)} ${ticker}`;
           if (isFinite(priceLimit)) {
             message += ` with price limit ${fixed02(priceLimit)}/u`;
           }
@@ -78,7 +78,7 @@ act.addAction({
 
         const leftover = amount - filled.amount;
         let message =
-          `${fixed0(leftover)} ${ticker} will not be bought on ${exchange} ` +
+          `${fixed0(leftover)} ${ticker} will not be sold on ${exchange} ` +
           `(${fixed0(filled.amount)} of ${fixed0(amount)} available`;
         if (isFinite(priceLimit)) {
           message += ` with price limit ${fixed02(priceLimit)}/u`;

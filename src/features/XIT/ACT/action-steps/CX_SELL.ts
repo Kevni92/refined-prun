@@ -1,7 +1,7 @@
 import { act } from '@src/features/XIT/ACT/act-registry';
 import { fixed0, fixed02 } from '@src/utils/format';
 import { changeInputValue, clickElement } from '@src/util';
-import { fillAmount } from '@src/features/XIT/ACT/actions/cx-buy/utils';
+import { fillAmount } from '@src/features/XIT/ACT/actions/cx-sell/utils';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { isDefined } from 'ts-extras';
 import { ExchangeTickersReverse } from '@src/legacy';
@@ -61,12 +61,15 @@ export const CX_SELL = act.addActionStep<Data>({
       return;
     }
 
-    const canFitWeight =
-      material.weight * amount <= cxWarehouse.value.weightCapacity - cxWarehouse.value.weightLoad;
-    const canFitVolume =
-      material.volume * amount <= cxWarehouse.value.volumeCapacity - cxWarehouse.value.volumeLoad;
-    if (!canFitWeight || !canFitVolume) {
-      log.error(`Cannot not sell ${fixed0(amount)} ${ticker} (will not fit in the warehouse)`);
+    const availableAmount =
+      cxWarehouse.value?.items
+        ?.map(x => x.quantity ?? undefined)
+        .filter(isDefined)
+        .find(x => x.material.ticker === ticker)?.amount ?? 0;
+    if (availableAmount < amount) {
+      log.error(
+        `Cannot sell ${fixed0(amount)} ${ticker} (only ${fixed0(availableAmount)} available)`,
+      );
       fail();
       return;
     }
@@ -98,7 +101,7 @@ export const CX_SELL = act.addActionStep<Data>({
 
     if (filled.amount < amount) {
       if (!data.buyPartial) {
-        let message = `Not enough materials on ${exchange} to buy ${fixed0(amount)} ${ticker}`;
+        let message = `Not enough demand on ${exchange} to sell ${fixed0(amount)} ${ticker}`;
         if (isFinite(priceLimit)) {
           message += ` with price limit ${fixed02(priceLimit)}/u`;
         }
@@ -109,7 +112,7 @@ export const CX_SELL = act.addActionStep<Data>({
 
       const leftover = amount - filled.amount;
       let message =
-        `${fixed0(leftover)} ${ticker} will not be bought on ${exchange} ` +
+        `${fixed0(leftover)} ${ticker} will not be sold on ${exchange} ` +
         `(${fixed0(filled.amount)} of ${fixed0(amount)} available`;
       if (isFinite(priceLimit)) {
         message += ` with price limit ${fixed02(priceLimit)}/u`;
@@ -125,9 +128,9 @@ export const CX_SELL = act.addActionStep<Data>({
     changeInputValue(quantityInput, filled.amount.toString());
     changeInputValue(priceInput, filled.priceLimit.toString());
 
-    const buyButton = await $(tile.anchor, C.Button.success);
+    const sellButton = await $(tile.anchor, C.Button.danger);
 
-    // Cache description before clicking the buy button because
+    // Cache description before clicking the sell button because
     // order book data will change after that.
     ctx.cacheDescription();
     await waitAct();
@@ -140,7 +143,7 @@ export const CX_SELL = act.addActionStep<Data>({
       );
     });
     const currentAmount = warehouseAmount.value;
-    await clickElement(buyButton);
+    await clickElement(sellButton);
     await waitActionFeedback(tile);
     setStatus('Waiting for storage update...');
     await watchWhile(() => warehouseAmount.value === currentAmount);
