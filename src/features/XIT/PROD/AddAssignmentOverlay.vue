@@ -7,8 +7,14 @@ import Commands from '@src/components/forms/Commands.vue';
 import PrunButton from '@src/components/PrunButton.vue';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
+import { getPlanetBurn } from '@src/core/burn';
+import { fixed0 } from '@src/utils/format';
 
-const { maxAmount, onSave } = defineProps<{ maxAmount: number; onSave: (siteId: string, amount: number) => void }>();
+const { maxAmount, ticker, onSave } = defineProps<{
+  maxAmount: number;
+  ticker: string;
+  onSave: (siteId: string, amount: number) => void;
+}>();
 
 const emit = defineEmits<{ (e: 'close'): void }>();
 
@@ -16,10 +22,18 @@ const siteId = ref('');
 const amount = ref(maxAmount);
 
 const options = computed(() =>
-  sitesStore.all.value?.map(site => ({
-    label: getEntityNameFromAddress(site.address),
-    value: site.siteId,
-  })) ?? []);
+  sitesStore.all.value?.map(site => {
+    const burn = getPlanetBurn(site.siteId);
+    const b = burn?.burn[ticker];
+    const net = b ? b.output - b.input - b.workforce : 0;
+    const deficit = net < 0 ? -net : 0;
+    return {
+      label:
+        getEntityNameFromAddress(site.address) +
+        (deficit > 0 ? ` (-${fixed0(deficit)})` : ''),
+      value: site.siteId,
+    };
+  }) ?? []);
 
 function save() {
   if (!siteId.value || !amount.value) {
