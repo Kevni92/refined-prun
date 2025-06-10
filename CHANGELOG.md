@@ -1,10 +1,43 @@
 # Changelog
 
-## Unreleased
+## 25.6.9.1557
+
+### Fixed
+
+- `XIT ACT`: Fix CX Buy action getting stuck after unexpected order book updates
+
+## 25.6.9
+
+### Fixed
+
+- `other-context-notification-count`: Fix counter displaying "ghost" notification count
+
+## 25.6.8
+
+### Added
+
+- `other-context-notification-count`: (new) Displays the number of notifications from other contexts in the NOTS header label
+- Add user data backups (up to 5, every 24 hours)
+- Add user data restore from backup after the extension reinstall
 
 ### Changed
 
+- `XIT ACT`: Add an export button to the action editor
+- `XIT ACT`: Auto-focus the text input on action import prompt open
+- `XIT SET`: Reload the page after importing or resetting user data
 - `highlight-own-exchange-orders`: Make own order rows bold
+- `item-icons`: Add a detail to the INS icon
+- Swap the order of SF and FF in category sorting
+
+### Fixed
+
+- `XIT ACT`: Fix CX Buy action using stale order book data
+- `XIT WEB`: Fix iframe being a bit too big for Firefox to properly scroll
+- `cxob-depth-bars`: Fix feature not working for newly placed orders
+- `cxpo-order-book`: Fix price/quantity autofill number formatting
+- `cxpo-order-book`: Fix clicking on MM order amount not filling the price
+- `highlight-own-exchange-orders`: Fix feature not working for newly placed orders
+- `screen-tab-bar`: Fix SCRN list not being updated when the page url contains context id
 
 ## 25.4.27
 

@@ -12,7 +12,7 @@ interface StepMachineOptions {
   onBufferSplit: () => void;
   onStart: () => void;
   onEnd: () => void;
-  onStatusChanged: (status: string) => void;
+  onStatusChanged: (status: string, keepReady?: boolean) => void;
   onActReady: () => void;
 }
 
@@ -105,7 +105,10 @@ export class StepMachine {
             return;
           }
         },
-        cacheDescription: () => (description = info.description(next)),
+        cacheDescription: () => {
+          description = info.description(next);
+          this.options.onStatusChanged(description, true);
+        },
         complete: async () => {
           // Wait a moment to allow data to update.
           await sleep(0);
@@ -196,8 +199,6 @@ async function waitActionProgress(overlay: HTMLElement) {
 
 function logRuntimeError(e: unknown, log: Logger) {
   console.error(e);
-  log.error(`Action Package execution failed due to a runtime error`);
-  log.error(`Please report this error to the extension developer`);
   if (e instanceof Error) {
     if (e.stack) {
       for (const line of e.stack.split('\n')) {
@@ -209,4 +210,6 @@ function logRuntimeError(e: unknown, log: Logger) {
   } else {
     log.error(e as string);
   }
+  log.error(`Action Package execution failed due to a runtime error`);
+  log.error(`Please report this error to the extension developer`);
 }
