@@ -19,7 +19,17 @@ const sites = computed(() => {
 
 const planetBurn = computed(() => sites.value?.map(getPlanetBurn).filter(isDefined) ?? []);
 
-const assignments = reactive<Record<string, Record<string, any>>>({});
+const assignments = reactive<Record<string, Record<string, { siteId: string; amount: number }[]>>>({});
+
+function addAssignment(from: string, ticker: string, to: string, amount: number) {
+  const src = (assignments[from] ??= {});
+  const srcTicker = (src[ticker] ??= []);
+  srcTicker.push({ siteId: to, amount: -amount });
+
+  const dest = (assignments[to] ??= {});
+  const destTicker = (dest[ticker] ??= []);
+  destTicker.push({ siteId: from, amount });
+}
 </script>
 
 <template>
@@ -30,9 +40,10 @@ const assignments = reactive<Record<string, Record<string, any>>>({});
         <tr>
           <th>Mat</th>
           <th>Inv</th>
-          <th>Prod</th>
-          <th>Cons</th>
-          <th>Days</th>
+          <th>Input</th>
+          <th>Output</th>
+          <th>Transfer</th>
+          <th>Sum</th>
           <th />
         </tr>
       </thead>
@@ -41,7 +52,8 @@ const assignments = reactive<Record<string, Record<string, any>>>({});
         :key="burn.naturalId"
         :burn="burn"
         :assignments="assignments[burn.storeId] ??= {}"
-        :can-minimize="planetBurn.length > 1" />
+        :can-minimize="planetBurn.length > 1"
+        @add-assignment="addAssignment" />
     </table>
   </template>
 </template>
