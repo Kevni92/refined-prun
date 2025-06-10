@@ -15,7 +15,7 @@ xit.add({
 
     return 'PRODUCTION ASSIGNMENTS';
   },
-  description: 'Shows the number of days of consumables left.',
+  description: 'Manage production assignments for produced materials.',
   optionalParameters: 'Planet Identifier(s)',
   component: () => PROD,
 });
