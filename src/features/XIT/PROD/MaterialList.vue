@@ -34,6 +34,7 @@ const produced = computed(() =>
 const consumed = computed(() =>
   sorted.value.filter(
     m => m && burn.burn[m.ticker].input > 0 && visible(m!),
+
   ),
 );
 
