@@ -5,7 +5,7 @@ import PrunButton from '@src/components/PrunButton.vue';
 import SelectInput from '@src/components/forms/SelectInput.vue';
 import RadioItem from '@src/components/forms/RadioItem.vue';
 import { showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
-import EditPriceLimits from '@src/features/XIT/ACT/actions/cx-buy/EditPriceLimits.vue';
+import EditPriceLimits from './EditPriceLimits.vue';
 import { materialsStore } from '@src/infrastructure/prun-api/data/materials';
 
 const { action, pkg } = defineProps<{
@@ -67,9 +67,9 @@ defineExpose({ validate, save });
     <PrunButton primary @click="onEditPriceLimitsClick">EDIT</PrunButton>
   </Commands>
   <Active
-    label="Buy Partial"
+    label="Sell Partial"
     tooltip="Whether the action will be taken if there is not enough stock on the CX.">
-    <RadioItem v-model="buyPartial">buy partial</RadioItem>
+    <RadioItem v-model="buyPartial">sell partial</RadioItem>
   </Active>
   <Active
     label="Use CX Inventory"

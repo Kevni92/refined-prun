@@ -98,7 +98,7 @@ export const CX_SELL = act.addActionStep<Data>({
 
     if (filled.amount < amount) {
       if (!data.buyPartial) {
-        let message = `Not enough materials on ${exchange} to buy ${fixed0(amount)} ${ticker}`;
+        let message = `Not enough demand on ${exchange} to sell ${fixed0(amount)} ${ticker}`;
         if (isFinite(priceLimit)) {
           message += ` with price limit ${fixed02(priceLimit)}/u`;
         }
@@ -109,7 +109,7 @@ export const CX_SELL = act.addActionStep<Data>({
 
       const leftover = amount - filled.amount;
       let message =
-        `${fixed0(leftover)} ${ticker} will not be bought on ${exchange} ` +
+        `${fixed0(leftover)} ${ticker} will not be sold on ${exchange} ` +
         `(${fixed0(filled.amount)} of ${fixed0(amount)} available`;
       if (isFinite(priceLimit)) {
         message += ` with price limit ${fixed02(priceLimit)}/u`;
