@@ -3,6 +3,9 @@ import Header from '@src/components/Header.vue';
 import SectionHeader from '@src/components/SectionHeader.vue';
 import Commands from '@src/components/forms/Commands.vue';
 import PrunButton from '@src/components/PrunButton.vue';
+import Active from '@src/components/forms/Active.vue';
+import TextInput from '@src/components/forms/TextInput.vue';
+import { ref, watch } from 'vue';
 import { showConfirmationOverlay, showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import removeArrayElement from '@src/utils/remove-array-element';
 import { objectId } from '@src/utils/object-id';
@@ -14,6 +17,22 @@ import { downloadJson } from '@src/utils/json-file';
 import { deepToRaw } from '@src/utils/deep-to-raw';
 
 const { pkg } = defineProps<{ pkg: UserData.ActionPackageData }>();
+
+const name = ref(pkg.global.name);
+const nameError = ref(false);
+watch(name, () => (nameError.value = !hasValidChars()));
+
+function onRenameClick() {
+  if (name.value.length === 0 || !hasValidChars()) {
+    nameError.value = true;
+    return;
+  }
+  pkg.global.name = name.value;
+}
+
+function hasValidChars() {
+  return /^[ 0-9a-zA-Z.-]*$/.test(name.value);
+}
 
 function onAddMaterialGroupClick(e: Event) {
   const group: UserData.MaterialGroupData = {
@@ -84,6 +103,16 @@ function onExportClick() {
 
 <template>
   <Header>{{ pkg.global.name }}</Header>
+  <div :class="[$style.renameForm, C.DraftConditionEditor.form]">
+    <form>
+      <Active label="Name" :error="nameError">
+        <TextInput v-model="name" />
+      </Active>
+      <Commands>
+        <PrunButton primary @click="onRenameClick">SAVE</PrunButton>
+      </Commands>
+    </form>
+  </div>
   <SectionHeader>Material Groups</SectionHeader>
   <table>
     <thead>
@@ -173,5 +202,9 @@ function onExportClick() {
 
 .sectionCommands {
   margin-top: 0.75rem;
+}
+
+.renameForm {
+  margin-bottom: 0.75rem;
 }
 </style>
