@@ -62,7 +62,7 @@ declare namespace UserData {
     consumablesOnly?: boolean;
   }
 
-  type ActionType = 'CX Buy' | 'MTRA' | 'SFC';
+  type ActionType = 'CX Buy' | 'CX Sell' | 'MTRA' | 'SFC';
 
   interface ActionData {
     type: ActionType;

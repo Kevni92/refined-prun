@@ -1,5 +1,6 @@
 import features from '@src/features/feature-registry';
 import { getPriceFullTicker } from '@src/infrastructure/fio/cx';
+import style from '../basic/table-rows-alternating-colors.module.css';
 
 function parseFormattedNumber(input) {
   // Nur den Teil vor der Klammer nehmen, falls vorhanden
@@ -18,7 +19,6 @@ function parseFormattedNumber(input) {
 function onTileReady(tile: PrunTile) {
   let init : boolean = false;
 
-  
   subscribe($$(tile.anchor, C.ComExOrdersTable.number), form => {
     if (!init) {
       
@@ -66,6 +66,8 @@ function onTileReady(tile: PrunTile) {
 
 function init() {
   tiles.observe('CXOS', onTileReady);
+  
+  applyCssRule('.Frame__logo___qu6xPzo', style);
 }
 
 features.add(

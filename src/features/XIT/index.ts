@@ -23,4 +23,5 @@ import './SET/SET';
 import './START';
 import './TODO/TODO';
 import './WEB/WEB';
+import './CXORDER/CXORDER';
 import './xit-commands';
