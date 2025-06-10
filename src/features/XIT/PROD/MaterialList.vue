@@ -33,10 +33,8 @@ const produced = computed(() =>
 );
 const consumed = computed(() =>
   sorted.value.filter(
-    m =>
-      m &&
-      burn.burn[m.ticker].output <= 0 &&
-      (burn.burn[m.ticker].input > 0 || burn.burn[m.ticker].workforce > 0),
+    m => m && burn.burn[m.ticker].input > 0 && visible(m!),
+
   ),
 );
 
@@ -49,7 +47,6 @@ function onAdd(ticker: string, siteId: string, amount: number) {
   <tr><th colspan="7">Produced</th></tr>
   <MaterialRow
     v-for="material in produced"
-
     :key="material!.id"
     :burn="burn.burn[material!.ticker]"
     :material="material!"
@@ -63,5 +60,4 @@ function onAdd(ticker: string, siteId: string, amount: number) {
     :material="material!"
     :assignments="assignments[material!.ticker] ?? []"
     @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)" />
-
 </template>

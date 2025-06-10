@@ -27,7 +27,7 @@ const expanded = ref(false);
 
 const transfer = computed(() => assignments.reduce((a, b) => a + b.amount, 0));
 const sum = computed(
-  () => (burn.Inventory ?? 0) + burn.output - burn.input - burn.workforce + transfer.value,
+  () => (burn.Inventory ?? 0) + burn.output - (burn.input + burn.workforce) + transfer.value,
 );
 
 function openAdd(ev: Event) {
@@ -46,7 +46,6 @@ function siteName(id: string) {
 
 <template>
   <tr @click="assignments.length && (expanded = !expanded)">
-
     <td :class="$style.materialContainer">
       <MaterialIcon size="inline-table" :ticker="material.ticker" />
     </td>

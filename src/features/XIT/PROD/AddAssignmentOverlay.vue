@@ -16,7 +16,6 @@ const { maxAmount, ticker, onSave } = defineProps<{
   onSave: (siteId: string, amount: number) => void;
 }>();
 
-
 const emit = defineEmits<{ (e: 'close'): void }>();
 
 const siteId = ref('');
