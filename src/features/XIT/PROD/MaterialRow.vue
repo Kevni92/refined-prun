@@ -46,6 +46,7 @@ function siteName(id: string) {
 
 <template>
   <tr @click="assignments.length && (expanded = !expanded)">
+
     <td :class="$style.materialContainer">
       <MaterialIcon size="inline-table" :ticker="material.ticker" />
     </td>
