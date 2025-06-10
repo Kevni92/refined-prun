@@ -39,10 +39,10 @@ function addAssignment(from: string, ticker: string, to: string, amount: number)
       <thead>
         <tr>
           <th>Mat</th>
-          <th>Inv</th>
           <th>Input</th>
           <th>Output</th>
-          <th>Transfer</th>
+          <th>Import</th>
+          <th>Export</th>
           <th>Sum</th>
           <th />
         </tr>
