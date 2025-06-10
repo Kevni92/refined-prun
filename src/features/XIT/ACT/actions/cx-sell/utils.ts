@@ -12,10 +12,12 @@ export function fillAmount(cxTicker: string, amount: number, priceLimit: number)
     priceLimit: 0,
     cost: 0,
   };
-  const orders = orderBook.sellingOrders.slice().sort((a, b) => a.limit.amount - b.limit.amount);
+  const orders = orderBook.buyingOrders
+    .slice()
+    .sort((a, b) => b.limit.amount - a.limit.amount);
   for (const order of orders) {
     const orderPrice = order.limit.amount;
-    if (priceLimit < orderPrice) {
+    if (priceLimit > orderPrice) {
       break;
     }
     const orderAmount = isFiniteOrder(order) ? order.amount : Infinity;
