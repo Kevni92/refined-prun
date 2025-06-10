@@ -62,6 +62,7 @@ const onClick = () => showBuffer(`MAT ${ticker.toUpperCase()}`);
 
 <style module>
 .container {
+  display: inline-block;
   cursor: pointer;
   width: fit-content;
   height: fit-content;
