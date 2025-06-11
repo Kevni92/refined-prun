@@ -8,6 +8,7 @@ import { showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import AddAssignmentOverlay from './AddAssignmentOverlay.vue';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { removeAssignment as removeStoreAssignment } from '@src/store/production-assignments';
 
 interface Assignment {
   siteId: string;
@@ -65,7 +66,7 @@ function openImport(ev: Event) {
 }
 
 function removeAssignment(index: number) {
-  assignments.splice(index, 1);
+  removeStoreAssignment(siteId, material.ticker, index);
 }
 
 function siteName(id: string) {

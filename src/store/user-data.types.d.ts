@@ -113,4 +113,11 @@ declare namespace UserData {
     label: string;
     command: string;
   }
+
+  interface ProductionAssignment {
+    siteId: string;
+    amount: number;
+  }
+
+  type ProductionAssignments = Record<string, Record<string, ProductionAssignment[]>>;
 }

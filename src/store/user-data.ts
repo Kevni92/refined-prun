@@ -63,6 +63,7 @@ export const initialUserData = deepFreeze({
     hidden: [] as string[],
   },
   commandLists: [] as UserData.CommandList[],
+  productionAssignments: {} as Record<string, Record<string, UserData.ProductionAssignment[]>>,
   favorites: {
     ticker: []
   } as UserData.Favorites
