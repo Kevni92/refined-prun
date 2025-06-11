@@ -1,5 +1,11 @@
 # Changelog
 
+## 25.6.9.1558
+
+### Fixed
+
+- `XIT PROD`: Prevent selecting the same site for import or export assignments
+
 ## 25.6.9.1557
 
 ### Fixed
