@@ -1,17 +1,18 @@
 <script setup lang="ts">
 const { value } = defineProps<{ value: number }>();
-const classes = computed(() => ({
-  [$style.good]: value > 0,
-  [$style.danger]: value < 0,
-  [$style.warning]: value === 0,
-}));
+
+function barClass() {
+  if (value > 0) return ["bar", "good"];
+  if (value < 0) return ["bar", "danger"];
+  return ["bar", "warning"];
+}
 </script>
 
 <template>
-  <div :class="[$style.bar, classes]" />
+  <div :class="barClass()" />
 </template>
 
-<style module>
+<style>
 .bar {
   width: 100%;
   height: 6px;
