@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import Cytoscape from 'vue-cytoscape';
+import VueD3Network from 'vue-d3-network';
 import { userData } from '@src/store/user-data';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
@@ -22,34 +22,36 @@ function getName(id: string): string {
   return store?.name ?? id;
 }
 
-const elements = computed(() => {
+const graph = computed(() => {
   const nodes: Record<string, any> = {};
-  const edges: any[] = [];
+  const links: any[] = [];
   const assignments = userData.productionAssignments;
   for (const [from, mats] of Object.entries(assignments)) {
-    nodes[from] = { data: { id: from, label: getName(from) } };
+    nodes[from] = { id: from, name: getName(from) };
     for (const [ticker, arr] of Object.entries(mats)) {
       for (const a of arr as any[]) {
         const to = (a as any).siteId;
         const amount = a.amount as number;
-        nodes[to] = { data: { id: to, label: getName(to) } };
-        edges.push({
-          data: {
-            id: `${from}-${to}-${ticker}-${amount}`,
-            source: from,
-            target: to,
-            label: `${ticker} ${amount > 0 ? '+' : ''}${amount}`,
-          },
+        nodes[to] = { id: to, name: getName(to) };
+        links.push({
+          source: from,
+          target: to,
+          name: `${ticker} ${amount > 0 ? '+' : ''}${amount}`,
         });
       }
     }
   }
-  return Object.values(nodes).concat(edges);
+  return { nodes: Object.values(nodes), links };
 });
 
-const layout = { name: 'cose' };
+const options = {};
 </script>
 
 <template>
-  <Cytoscape :elements="elements" :layout="layout" style="width: 100%; height: 100%;" />
+  <vue-d3-network
+    :nodes="graph.nodes"
+    :links="graph.links"
+    :options="options"
+    style="width: 100%; height: 100%;"
+  />
 </template>
