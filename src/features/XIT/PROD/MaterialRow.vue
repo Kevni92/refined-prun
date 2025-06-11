@@ -8,6 +8,7 @@ import { showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import AddAssignmentOverlay from './AddAssignmentOverlay.vue';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { removeAssignment as removeStoreAssignment } from '@src/store/production-assignments';
 
 interface Assignment {
@@ -15,11 +16,12 @@ interface Assignment {
   amount: number;
 }
 
-const { burn, material, assignments, siteId } = defineProps<{
+const { burn, material, assignments, siteId, storeId } = defineProps<{
   burn: MaterialBurn;
   material: PrunApi.Material;
   assignments: Assignment[];
   siteId: string;
+  storeId: string;
 }>();
 
 const emit = defineEmits<{
@@ -88,11 +90,13 @@ function openImport(ev: Event) {
 }
 
 function removeAssignment(index: number) {
-  removeStoreAssignment(siteId, material.ticker, index);
+  removeStoreAssignment(storeId, material.ticker, index);
 }
 
 function siteName(id: string) {
-  const site = sitesStore.getById(id);
+  const site =
+    sitesStore.getById(id) ??
+    sitesStore.getById(storagesStore.getById(id)?.addressableId);
   return site ? getEntityNameFromAddress(site.address) : id;
 }
 </script>
