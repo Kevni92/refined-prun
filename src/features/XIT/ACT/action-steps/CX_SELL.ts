@@ -61,12 +61,15 @@ export const CX_SELL = act.addActionStep<Data>({
       return;
     }
 
-    const canFitWeight =
-      material.weight * amount <= cxWarehouse.value.weightCapacity - cxWarehouse.value.weightLoad;
-    const canFitVolume =
-      material.volume * amount <= cxWarehouse.value.volumeCapacity - cxWarehouse.value.volumeLoad;
-    if (!canFitWeight || !canFitVolume) {
-      log.error(`Cannot not sell ${fixed0(amount)} ${ticker} (will not fit in the warehouse)`);
+    const availableAmount =
+      cxWarehouse.value?.items
+        ?.map(x => x.quantity ?? undefined)
+        .filter(isDefined)
+        .find(x => x.material.ticker === ticker)?.amount ?? 0;
+    if (availableAmount < amount) {
+      log.error(
+        `Cannot sell ${fixed0(amount)} ${ticker} (only ${fixed0(availableAmount)} available)`,
+      );
       fail();
       return;
     }
@@ -125,9 +128,9 @@ export const CX_SELL = act.addActionStep<Data>({
     changeInputValue(quantityInput, filled.amount.toString());
     changeInputValue(priceInput, filled.priceLimit.toString());
 
-    const buyButton = await $(tile.anchor, C.Button.success);
+    const sellButton = await $(tile.anchor, C.Button.danger);
 
-    // Cache description before clicking the buy button because
+    // Cache description before clicking the sell button because
     // order book data will change after that.
     ctx.cacheDescription();
     await waitAct();
@@ -140,7 +143,7 @@ export const CX_SELL = act.addActionStep<Data>({
       );
     });
     const currentAmount = warehouseAmount.value;
-    await clickElement(buyButton);
+    await clickElement(sellButton);
     await waitActionFeedback(tile);
     setStatus('Waiting for storage update...');
     await watchWhile(() => warehouseAmount.value === currentAmount);
