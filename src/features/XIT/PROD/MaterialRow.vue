@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MaterialBurn } from '@src/core/burn';
+import { MaterialBurn, getPlanetBurn } from '@src/core/burn';
 import MaterialIcon from '@src/components/MaterialIcon.vue';
 import { fixed0 } from '@src/utils/format';
 import PrunButton from '@src/components/PrunButton.vue';
@@ -44,6 +44,28 @@ const sumClass = computed(() => ({
   [C.ColoredValue.positive]: sum.value > 0,
   [C.ColoredValue.negative]: sum.value < 0,
 }));
+
+const hasImportSites = computed(() =>
+  (sitesStore.all.value ?? [])
+    .filter(s => s.siteId !== siteId)
+    .some(site => {
+      const burn = getPlanetBurn(site.siteId);
+      const b = burn?.burn[material.ticker];
+      const net = b ? b.output - b.input - b.workforce : 0;
+      return net > 0;
+    }),
+);
+
+const hasExportSites = computed(() =>
+  (sitesStore.all.value ?? [])
+    .filter(s => s.siteId !== siteId)
+    .some(site => {
+      const burn = getPlanetBurn(site.siteId);
+      const b = burn?.burn[material.ticker];
+      const net = b ? b.output - b.input - b.workforce : 0;
+      return net < 0;
+    }),
+);
 
 function openAdd(ev: Event) {
   showTileOverlay(ev, AddAssignmentOverlay, {
@@ -91,8 +113,8 @@ function siteName(id: string) {
     <td :class="sumClass">{{ sum === 0 ? '' : fixed0(sum) }}</td>
     <td><BalanceBar :value="sum" /></td>
     <td>
-      <PrunButton dark inline @click.stop="openImport">IMPORT</PrunButton>
-      <PrunButton dark inline @click.stop="openAdd">EXPORT</PrunButton>
+      <PrunButton dark inline @click.stop="openImport" :disabled="!hasImportSites">IMPORT</PrunButton>
+      <PrunButton dark inline @click.stop="openAdd" :disabled="!hasExportSites">EXPORT</PrunButton>
     </td>
   </tr>
   <tr v-if="expanded" v-for="(a, i) in assignments" :key="i">

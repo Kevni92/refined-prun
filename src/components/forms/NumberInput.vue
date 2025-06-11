@@ -7,7 +7,8 @@ const inputModel = computed({
   get: () => model.value,
   set: (value: string) => {
     if (value !== '') {
-      model.value = parseInt(value, 10);
+      const parsed = Math.ceil(parseFloat(value));
+      model.value = Number.isNaN(parsed) ? 0 : parsed;
       return;
     }
     if (optional) {
@@ -27,6 +28,7 @@ const inputModel = computed({
       :max="max"
       v-model="inputModel"
       type="number"
+      step="1"
       autocomplete="off"
       data-1p-ignore="true"
       data-lpignore="true" />
