@@ -1,5 +1,6 @@
 import { reactive } from 'vue';
 import { userData } from '@src/store/user-data';
+import { materialsStore } from '@src/infrastructure/prun-api/data/materials';
 
 export interface ProductionAssignment {
   siteId: string;
@@ -42,4 +43,54 @@ export function removeAssignment(siteId: string, ticker: string, index: number) 
 export function clearAllAssignments ()
 {
   userData.productionAssignments = reactive({});
+}
+
+function eachExport(
+  from: string,
+  to: string,
+  ticker: string,
+  cb: (amount: number, material: PrunApi.Material | undefined) => void,
+) {
+  const assignments = getAssignments(from)[ticker];
+  if (!assignments) return;
+  const material = materialsStore.getByTicker(ticker);
+  for (const a of assignments) {
+    if (a.siteId === to && a.amount < 0) {
+      cb(-a.amount, material);
+    }
+  }
+}
+
+export function getMass(from: string, to: string, ticker?: string): number {
+  let total = 0;
+  if (ticker) {
+    eachExport(from, to, ticker, (amount, material) => {
+      total += (material?.weight ?? 0) * amount;
+    });
+    return total;
+  }
+  const site = getAssignments(from);
+  for (const t of Object.keys(site)) {
+    eachExport(from, to, t, (amount, material) => {
+      total += (material?.weight ?? 0) * amount;
+    });
+  }
+  return total;
+}
+
+export function getVolume(from: string, to: string, ticker?: string): number {
+  let total = 0;
+  if (ticker) {
+    eachExport(from, to, ticker, (amount, material) => {
+      total += (material?.volume ?? 0) * amount;
+    });
+    return total;
+  }
+  const site = getAssignments(from);
+  for (const t of Object.keys(site)) {
+    eachExport(from, to, t, (amount, material) => {
+      total += (material?.volume ?? 0) * amount;
+    });
+  }
+  return total;
 }
