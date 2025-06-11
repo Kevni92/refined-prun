@@ -14,10 +14,11 @@ interface Assignment {
   amount: number;
 }
 
-const { burn, material, assignments } = defineProps<{
+const { burn, material, assignments, siteId } = defineProps<{
   burn: MaterialBurn;
   material: PrunApi.Material;
   assignments: Assignment[];
+  siteId: string;
 }>();
 
 const emit = defineEmits<{
@@ -48,6 +49,7 @@ function openAdd(ev: Event) {
     maxAmount: burn.output,
     ticker: material.ticker,
     direction: 'export',
+    currentSiteId: siteId,
     onSave: (siteId: string, amount: number) => emit('add-assignment', siteId, amount),
   });
 }
@@ -57,6 +59,7 @@ function openImport(ev: Event) {
     maxAmount: Math.abs(sum.value),
     ticker: material.ticker,
     direction: 'import',
+    currentSiteId: siteId,
     onSave: (siteId: string, amount: number) => emit('import-assignment', siteId, amount),
   });
 }
