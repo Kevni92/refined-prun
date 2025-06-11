@@ -42,6 +42,7 @@ function toggle() {
     <MaterialList
       :burn="burn"
       :assignments="assignments"
+      :site-id="burn.storeId"
       @add-assignment="(t, s, a) => emit('add-assignment', burn.storeId, t, s, a)"
       @import-assignment="(t, s, a) => emit('import-assignment', s, t, burn.storeId, a)"
     />
