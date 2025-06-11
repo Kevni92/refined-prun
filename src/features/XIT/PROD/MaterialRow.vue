@@ -73,7 +73,7 @@ function siteName(id: string) {
 
 <template>
   <tr @click="assignments.length && (expanded = !expanded)">
-    <td :class="$style.materialContainer">
+    <td class="materialContainer">
       <MaterialIcon size="inline-table" :ticker="material.ticker" />
     </td>
     <td :class="C.ColoredValue.negative">-{{ fixed0(burn.input + burn.workforce) }}</td>
@@ -89,19 +89,19 @@ function siteName(id: string) {
   </tr>
   <tr v-if="expanded" v-for="(a, i) in assignments" :key="i">
     <td></td>
-    <td :class="$style.assignment">{{ a.amount > 0 ? siteName(a.siteId) : '' }}</td>
-    <td :class="$style.assignment">{{ a.amount < 0 ? siteName(a.siteId) : '' }}</td>
-    <td :class="$style.assignment">{{ a.amount > 0 ? fixed0(a.amount) : '' }}</td>
-    <td :class="$style.assignment">{{ a.amount < 0 ? fixed0(-a.amount) : '' }}</td>
-    <td :class="$style.assignment"></td>
-    <td :class="$style.assignment"></td>
-    <td :class="$style.assignment">
+    <td class="assignment">{{ a.amount > 0 ? siteName(a.siteId) : '' }}</td>
+    <td class="assignment">{{ a.amount < 0 ? siteName(a.siteId) : '' }}</td>
+    <td class="assignment">{{ a.amount > 0 ? fixed0(a.amount) : '' }}</td>
+    <td class="assignment">{{ a.amount < 0 ? fixed0(-a.amount) : '' }}</td>
+    <td class="assignment"></td>
+    <td class="assignment"></td>
+    <td class="assignment">
       <PrunButton danger dark inline @click.stop="removeAssignment(i)">DEL</PrunButton>
     </td>
   </tr>
 </template>
 
-<style module>
+<style scoped>
 .materialContainer {
   width: 32px;
   padding: 0;
