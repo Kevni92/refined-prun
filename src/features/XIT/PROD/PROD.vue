@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getPlanetBurn } from '@src/core/burn';
+import { getPlanetBurn, type MaterialBurn, type PlanetBurn } from '@src/core/burn';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
+import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
+import {
+  getEntityNameFromAddress,
+  getEntityNaturalIdFromAddress,
+} from '@src/infrastructure/prun-api/data/addresses';
 import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { isDefined, isEmpty } from 'ts-extras';
 import LoadingSpinner from '@src/components/LoadingSpinner.vue';
@@ -27,6 +32,40 @@ const sites = computed(() => {
 const planetBurn = computed(() => sites.value?.map(getPlanetBurn).filter(isDefined) ?? []);
 
 const showConsumption = useTileState('showConsumption');
+const showStations = useTileState('showStations');
+
+const stationBurn = computed(() => {
+  return (
+    warehousesStore.all.value
+      ?.filter(w => w.address?.lines[1]?.type === 'STATION')
+      .map(w => {
+        const assignments = getAssignments(w.storeId);
+        const burn: Record<string, MaterialBurn> = {};
+        for (const ticker of Object.keys(assignments)) {
+          burn[ticker] = {
+            input: 0,
+            output: 0,
+            workforce: 0,
+            DailyAmount: 0,
+            Inventory: 0,
+            DaysLeft: 0,
+            Type: 'output',
+          };
+        }
+        return {
+          siteId: w.warehouseId,
+          storeId: w.storeId,
+          planetName: getEntityNameFromAddress(w.address)!,
+          naturalId: getEntityNaturalIdFromAddress(w.address)!,
+          burn,
+        } as PlanetBurn;
+      }) ?? []
+  );
+});
+
+const allBurn = computed(() =>
+  showStations.value ? [...stationBurn.value, ...planetBurn.value] : planetBurn.value,
+);
 
 function onAddAssignment(from: string, ticker: string, to: string, amount: number) {
   const toStore = storagesStore.getByAddressableId(to)?.find(s => s.type === 'STORE');
@@ -43,6 +82,7 @@ function importAssignment(from: string, ticker: string, to: string, amount: numb
   <LoadingSpinner v-if="sites === undefined" />
   <template v-else>
     <div :class="C.ComExOrdersPanel.filter">
+      <FilterButton v-model="showStations">STATIONS</FilterButton>
       <FilterButton v-model="showConsumption">CONSUMPTION</FilterButton>
     </div>
     <table>
@@ -59,11 +99,11 @@ function importAssignment(from: string, ticker: string, to: string, amount: numb
         </tr>
       </thead>
       <PlanetSection
-        v-for="burn in planetBurn"
+        v-for="burn in allBurn"
         :key="burn.naturalId"
         :burn="burn"
         :assignments="getAssignments(burn.storeId)"
-        :can-minimize="planetBurn.length > 1"
+        :can-minimize="allBurn.length > 1"
         @add-assignment="onAddAssignment"
         @import-assignment="importAssignment" />
     </table>
