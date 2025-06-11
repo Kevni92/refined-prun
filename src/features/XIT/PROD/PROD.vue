@@ -48,6 +48,7 @@ function importAssignment(from: string, ticker: string, to: string, amount: numb
           <th>Import</th>
           <th>Export</th>
           <th>Sum</th>
+          <th>Balance</th>
           <th />
         </tr>
       </thead>

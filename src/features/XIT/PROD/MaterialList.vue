@@ -49,7 +49,7 @@ function onImport(ticker: string, siteId: string, amount: number) {
 </script>
 
 <template>
-  <tr><th colspan="7">Produced</th></tr>
+  <tr><th colspan="8">Produced</th></tr>
   <MaterialRow
     v-for="material in produced"
     :key="material!.id"
@@ -58,7 +58,7 @@ function onImport(ticker: string, siteId: string, amount: number) {
     :assignments="assignments[material!.ticker] ?? []"
     @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)"
     @import-assignment="(s, amt) => onImport(material!.ticker, s, amt)" />
-  <tr><th colspan="7">Consumed</th></tr>
+  <tr><th colspan="8">Consumed</th></tr>
   <MaterialRow
     v-for="material in consumed"
     :key="material!.ticker + '-c'"
