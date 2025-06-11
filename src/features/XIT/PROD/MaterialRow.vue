@@ -21,6 +21,7 @@ const { burn, material, assignments } = defineProps<{
 
 const emit = defineEmits<{
   (e: 'add-assignment', siteId: string, amount: number): void;
+  (e: 'import-assignment', siteId: string, amount: number): void;
 }>();
 
 const expanded = ref(false);
@@ -36,11 +37,26 @@ const sum = computed(
   () => burn.output - (burn.input + burn.workforce) + transfer.value,
 );
 
+const sumClass = computed(() => ({
+  [C.ColoredValue.positive]: sum.value > 0,
+  [C.ColoredValue.negative]: sum.value < 0,
+}));
+
 function openAdd(ev: Event) {
   showTileOverlay(ev, AddAssignmentOverlay, {
     maxAmount: burn.output,
     ticker: material.ticker,
+    direction: 'export',
     onSave: (siteId: string, amount: number) => emit('add-assignment', siteId, amount),
+  });
+}
+
+function openImport(ev: Event) {
+  showTileOverlay(ev, AddAssignmentOverlay, {
+    maxAmount: Math.abs(sum.value),
+    ticker: material.ticker,
+    direction: 'import',
+    onSave: (siteId: string, amount: number) => emit('import-assignment', siteId, amount),
   });
 }
 
@@ -63,9 +79,10 @@ function siteName(id: string) {
     <td :class="C.ColoredValue.positive">+{{ fixed0(burn.output) }}</td>
     <td>{{ fixed0(importTotal) }}</td>
     <td>{{ fixed0(exportTotal) }}</td>
-    <td>{{ fixed0(sum) }}</td>
+    <td :class="sumClass">{{ fixed0(sum) }}</td>
     <td>
-      <PrunButton dark inline @click.stop="openAdd">ADD</PrunButton>
+      <PrunButton dark inline @click.stop="openImport">IMPORT</PrunButton>
+      <PrunButton dark inline @click.stop="openAdd">EXPORT</PrunButton>
     </td>
   </tr>
   <tr v-if="expanded" v-for="(a, i) in assignments" :key="i">
@@ -89,5 +106,6 @@ function siteName(id: string) {
 .assignment {
   padding-left: 40px;
   font-size: 11px;
+  text-align: left;
 }
 </style>
