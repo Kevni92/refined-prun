@@ -7,8 +7,10 @@ import PrunButton from '@src/components/PrunButton.vue';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
-import { getPlanetBurn } from '@src/core/burn';
-import { fixed0 } from '@src/utils/format';
+import { getPlanetBurn, MaterialBurn } from '@src/core/burn';
+import { fixed2 } from '@src/utils/format';
+import ColoredIcon from '@src/components/ColoredIcon.vue';
+import { getAssignments } from '@src/store/production-assignments';
 
 const { maxAmount, ticker, onSave, currentSiteId, direction = 'export' } = defineProps<{
   maxAmount: number;
@@ -38,9 +40,16 @@ const sites = computed<SiteOption[]>(() => {
     sitesStore.all.value
       ?.filter(s => s.siteId !== currentSiteId)
       .map(site => {
-        const burn = getPlanetBurn(site.siteId);
-        const b = burn?.burn[ticker];
-        const net = b ? b.output - b.input - b.workforce : 0;
+        const burn = getPlanetBurn(site.siteId)!;
+        const materialBurn = burn?.burn[ticker];
+
+        const assignments = getAssignments(site.siteId)[ticker];
+        let transfer = 0;
+
+        if (assignments !== undefined) transfer = assignments.reduce((a, b) => a + b.amount, 0);
+        const net = materialBurn ? materialBurn.output - (materialBurn.input + materialBurn.workforce) + transfer : 0;
+
+
         return {
           name: getEntityNameFromAddress(site.address),
           value: site.siteId,
@@ -53,15 +62,25 @@ const sites = computed<SiteOption[]>(() => {
     warehousesStore.all.value
       ?.filter(
         w =>
-          w.storeId !== currentSiteId && w.address?.lines[1]?.type === 'STATION',
+          w.warehouseId !== currentSiteId && w.address?.lines[1]?.type === 'STATION',
       )
-      .map(w => ({
-        name: getEntityNameFromAddress(w.address)!,
-        value: w.storeId,
-        deficit: 0,
-        surplus: 0,
-        station: true,
-      })) ?? [];
+      .map(w => {
+        const assignments = getAssignments(w.storeId)[ticker];
+        let net = 0;
+        if (assignments !== undefined) {
+          for (const assignment of assignments) {
+            net += assignment.amount;
+          }
+          console.log(net);
+        }
+        return {
+          name: getEntityNameFromAddress(w.address)!,
+          value: w.storeId,
+          deficit: net < 0 ? -net : 0,
+          surplus: net > 0 ? net : 0,
+          station: true,
+        };
+      }) ?? [];
 
   return [...baseSites, ...stationSites];
 });
@@ -78,16 +97,18 @@ const selectedSite = computed(() =>
   sites.value.find(s => s.value === siteId.value),
 );
 
-const currentMax = computed(() =>
-  Math.min(
+
+const currentMax = computed(() => {
+  let a = Math.min(
     maxAmount,
     selectedSite.value && (selectedSite.value.station == false)
       ? direction === 'import'
         ? selectedSite.value.surplus
         : selectedSite.value.deficit
       : maxAmount,
-  ),
-);
+  );
+  return a;
+});
 
 const amountError = computed(
   () => !amount.value || amount.value <= 0 || amount.value > currentMax.value,
@@ -95,15 +116,25 @@ const amountError = computed(
 
 const saveDisabled = computed(() => !siteId.value || amountError.value);
 
+
 function selectSite(site: SiteOption) {
   siteId.value = site.value;
-  amount.value = currentMax.value;
+  amount.value = Number((
+    direction === 'import'
+    ? site.surplus
+    : site.deficit).toFixed(2));
+}
+
+function setToMax()
+{
+  amount.value = Number(currentMax.value.toFixed(2));
 }
 
 function save() {
   if (!siteId.value || !amount.value) {
     return;
   }
+
   onSave(siteId.value, Math.min(amount.value, currentMax.value));
   emit('close');
 }
@@ -117,36 +148,41 @@ function save() {
         <thead>
           <tr>
             <th>Site-Name</th>
-            <th v-if="direction === 'import'">Überschuss</th>
-            <th v-else>Bedarf</th>
-            <th>Aktion</th>
+            <th>Saldo</th>
           </tr>
         </thead>
         <tbody>
-          <tr
+          <tr 
             v-for="s in direction === 'import' ? importOptions : exportOptions"
             :key="s.value"
-            :class="{ selected: s.value === siteId }">
-            <td>{{ s.name }}</td>
-            <td>
+            @click="selectSite(s)"
+            >
+            <td :class="{ selected: s.value === siteId, centered: true }">
+              <ColoredIcon v-if="s.station" background="#000000" label="STN" title="Station" size="inline-row" />
+              {{ s.name }}
+            </td>
+            <td :class="{ 
+              selected: s.value === siteId,  
+              [C.ColoredValue.positive]: s.surplus > 0,
+              [C.ColoredValue.negative]: s.deficit > 0,
+
+            }">
               {{
                 direction === 'import'
                   ? s.surplus === 0
-                    ? ''
-                    : fixed0(s.surplus)
+                    ? '0'
+                    : '+' + fixed2(s.surplus)
                   : s.deficit === 0
-                    ? ''
-                    : fixed0(s.deficit)
+                    ? '0'
+                    : '-' + fixed2(s.deficit)
               }}
-            </td>
-            <td>
-              <PrunButton dark inline @click="selectSite(s)">SELECT</PrunButton>
             </td>
           </tr>
         </tbody>
       </table>
-      <Active v-if="siteId" label="Amount" :error="amountError">
-        <NumberInput v-model="amount" :max="currentMax" :min="1" />
+      <Active label="Amount" :error="amountError">
+        <NumberInput :decimalPlaces="2" :disabled="siteId" v-model="amount" :max="currentMax" :min="1" />&nbsp; / &nbsp;
+        <PrunButton primary @click="setToMax()">{{ fixed2(currentMax) }}</PrunButton>
       </Active>
       <Commands>
         <PrunButton primary :disabled="saveDisabled" @click="save">SAVE</PrunButton>
@@ -160,7 +196,19 @@ function save() {
 table {
   width: 100%;
 }
+
+tbody > tr {
+  cursor: pointer;
+}
+
 .selected {
   background: rgba(255, 255, 255, 0.1);
+}
+.centered {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  
 }
 </style>

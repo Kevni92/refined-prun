@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PlanetBurn } from '@src/core/burn';
-import PlanetHeader from '@src/features/XIT/BURN/PlanetHeader.vue';
+import PlanetHeader from '@src/features/XIT/PROD/PlanetHeader.vue';
 import MaterialList from './MaterialList.vue';
 import { useTileState } from './tile-state';
 

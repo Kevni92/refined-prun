@@ -61,31 +61,33 @@ const exportClass = computed(() => ({
   [C.ColoredValue.negative]: exportTotal.value > 0,
 }));
 
-const hasImportSites = computed(() =>
-  (sitesStore.all.value ?? [])
+const canImport = computed(() => {
+  return (sitesStore.all.value ?? [])
     .filter(s => s.siteId !== siteId)
     .some(site => {
       const burn = getPlanetBurn(site.siteId);
       const b = burn?.burn[material.ticker];
       const net = b ? b.output - b.input - b.workforce : 0;
       return net > 0;
-    }),
-);
+    })
+});
 
-const hasExportSites = computed(() =>
-  (sitesStore.all.value ?? [])
+const canExport = computed(() => {
+  return (sitesStore.all.value ?? [])
     .filter(s => s.siteId !== siteId)
     .some(site => {
       const burn = getPlanetBurn(site.siteId);
       const b = burn?.burn[material.ticker];
       const net = b ? b.output - b.input - b.workforce : 0;
       return net < 0;
-    }),
-);
+    })
+    &&
+    sum.value > 0
+});
 
-function openAdd(ev: Event) {
+function openExport(ev: Event) {
   showTileOverlay(ev, AddAssignmentOverlay, {
-    maxAmount: burn.output,
+    maxAmount: Math.abs(sum.value),
     ticker: material.ticker,
     direction: 'export',
     currentSiteId: siteId,
@@ -137,8 +139,8 @@ function siteName(id: string) {
     <td :class="sumClass">{{ sum === 0 ? '0' : fixed2(sum) }}</td>
     <td><BalanceBar :value="sum" /></td>
     <td  class="text-left">
-      <PrunButton dark inline @click.stop="openImport" :disabled="!hasImportSites">IMPORT</PrunButton>
-      <PrunButton dark inline @click.stop="openAdd" :disabled="!hasExportSites">EXPORT</PrunButton>
+      <PrunButton dark inline @click.stop="openImport" :disabled="!canImport">IMPORT</PrunButton>
+      <PrunButton dark inline @click.stop="openExport" :disabled="!canExport">EXPORT</PrunButton>
     </td>
   </tr>
   <tr v-if="expanded" v-for="(a, i) in assignments" :key="i">

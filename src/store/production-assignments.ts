@@ -10,6 +10,7 @@ type SiteAssignments = Record<string, ProductionAssignment[]>;
 export type ProductionAssignments = Record<string, SiteAssignments>;
 
 function ensureSite(id: string): SiteAssignments {
+
   return (userData.productionAssignments[id] ??= reactive({}));
 }
 
@@ -36,4 +37,9 @@ export function removeAssignment(siteId: string, ticker: string, index: number) 
 
   const destIndex = destArr.findIndex(a => a.siteId === siteId && a.amount === -entry.amount);
   if (destIndex !== -1) destArr.splice(destIndex, 1);
+}
+
+export function clearAllAssignments ()
+{
+  userData.productionAssignments = reactive({});
 }

@@ -5,6 +5,7 @@ import MaterialRow from './MaterialRow.vue';
 import { sortMaterials } from '@src/core/sort-materials';
 import { isDefined } from 'ts-extras';
 import { useTileState } from './tile-state';
+import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 
 interface Assignment {
   siteId: string;
@@ -24,6 +25,7 @@ const { burn, assignments, siteId, storeId } = defineProps<{
 }>();
 
 const showConsumption = useTileState('showConsumption');
+const isStation = computed(() => warehousesStore.getById(siteId) !== undefined);
 
 const materials = computed(() => Object.keys(burn.burn).map(materialsStore.getByTicker));
 const sorted = computed(() => sortMaterials(materials.value.filter(isDefined)));
@@ -32,7 +34,7 @@ function visible(material: PrunApi.Material | undefined) {
   if (!material) return false;
   const b = burn.burn[material.ticker];
   const isConsumption = b.output === 0 && b.input === 0;
-  return showConsumption.value || !isConsumption;
+  return isStation.value || (showConsumption.value || !isConsumption);
 }
 
 const produced = computed(() =>

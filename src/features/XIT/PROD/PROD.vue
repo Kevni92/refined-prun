@@ -16,8 +16,11 @@ import FilterButton from '@src/features/XIT/BURN/FilterButton.vue';
 import { useTileState } from './tile-state';
 import {
   addAssignment,
+  clearAllAssignments,
   getAssignments,
 } from '@src/store/production-assignments';
+import PrunButton from '@src/components/PrunButton.vue';
+import { GetWarehouseBurn } from './WarehouseProd';
 
 const parameters = useXitParameters();
 const isAll = isEmpty(parameters) || parameters[0].toLowerCase() === 'all';
@@ -34,34 +37,7 @@ const planetBurn = computed(() => sites.value?.map(getPlanetBurn).filter(isDefin
 const showConsumption = useTileState('showConsumption');
 const showStations = useTileState('showStations');
 
-const stationBurn = computed(() => {
-  return (
-    warehousesStore.all.value
-      ?.filter(w => w.address?.lines[1]?.type === 'STATION')
-      .map(w => {
-        const assignments = getAssignments(w.storeId);
-        const burn: Record<string, MaterialBurn> = {};
-        for (const ticker of Object.keys(assignments)) {
-          burn[ticker] = {
-            input: 0,
-            output: 0,
-            workforce: 0,
-            DailyAmount: 0,
-            Inventory: 0,
-            DaysLeft: 0,
-            Type: 'output',
-          };
-        }
-        return {
-          siteId: w.warehouseId,
-          storeId: w.storeId,
-          planetName: getEntityNameFromAddress(w.address)!,
-          naturalId: getEntityNaturalIdFromAddress(w.address)!,
-          burn,
-        } as PlanetBurn;
-      }) ?? []
-  );
-});
+const stationBurn = computed(() => GetWarehouseBurn());
 
 const allBurn = computed(() =>
   showStations.value ? [...stationBurn.value, ...planetBurn.value] : planetBurn.value,
@@ -76,6 +52,7 @@ function importAssignment(from: string, ticker: string, to: string, amount: numb
   const fromStore = storagesStore.getByAddressableId(from)?.find(s => s.type === 'STORE');
   addAssignment(fromStore?.id ?? from, ticker, to, amount);
 }
+
 </script>
 
 <template>
@@ -84,6 +61,7 @@ function importAssignment(from: string, ticker: string, to: string, amount: numb
     <div :class="C.ComExOrdersPanel.filter">
       <FilterButton v-model="showStations">STATIONS</FilterButton>
       <FilterButton v-model="showConsumption">CONSUMPTION</FilterButton>
+      <PrunButton danger dark inline @click="clearAllAssignments()">CLEAR ALL ROUTES</PrunButton>
     </div>
     <table>
       <thead>
