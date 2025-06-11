@@ -11,7 +11,6 @@ type SiteAssignments = Record<string, ProductionAssignment[]>;
 export type ProductionAssignments = Record<string, SiteAssignments>;
 
 function ensureSite(id: string): SiteAssignments {
-
   return (userData.productionAssignments[id] ??= reactive({}));
 }
 
@@ -40,8 +39,7 @@ export function removeAssignment(siteId: string, ticker: string, index: number) 
   if (destIndex !== -1) destArr.splice(destIndex, 1);
 }
 
-export function clearAllAssignments ()
-{
+export function clearAllAssignments() {
   userData.productionAssignments = reactive({});
 }
 
@@ -91,6 +89,66 @@ export function getVolume(from: string, to: string, ticker?: string): number {
     eachExport(from, to, t, (amount, material) => {
       total += (material?.volume ?? 0) * amount;
     });
+  }
+  return total;
+}
+
+export function getExportMassTotal(siteId: string): number {
+  let total = 0;
+  const site = getAssignments(siteId);
+  for (const [ticker, arr] of Object.entries(site)) {
+    const material = materialsStore.getByTicker(ticker);
+    const weight = material?.weight ?? 0;
+    for (const a of arr) {
+      if (a.amount < 0) {
+        total += weight * -a.amount;
+      }
+    }
+  }
+  return total;
+}
+
+export function getImportMassTotal(siteId: string): number {
+  let total = 0;
+  const site = getAssignments(siteId);
+  for (const [ticker, arr] of Object.entries(site)) {
+    const material = materialsStore.getByTicker(ticker);
+    const weight = material?.weight ?? 0;
+    for (const a of arr) {
+      if (a.amount > 0) {
+        total += weight * a.amount;
+      }
+    }
+  }
+  return total;
+}
+
+export function getExportVolumeTotal(siteId: string): number {
+  let total = 0;
+  const site = getAssignments(siteId);
+  for (const [ticker, arr] of Object.entries(site)) {
+    const material = materialsStore.getByTicker(ticker);
+    const volume = material?.volume ?? 0;
+    for (const a of arr) {
+      if (a.amount < 0) {
+        total += volume * -a.amount;
+      }
+    }
+  }
+  return total;
+}
+
+export function getImportVolumeTotal(siteId: string): number {
+  let total = 0;
+  const site = getAssignments(siteId);
+  for (const [ticker, arr] of Object.entries(site)) {
+    const material = materialsStore.getByTicker(ticker);
+    const volume = material?.volume ?? 0;
+    for (const a of arr) {
+      if (a.amount > 0) {
+        total += volume * a.amount;
+      }
+    }
   }
   return total;
 }
