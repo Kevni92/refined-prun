@@ -81,7 +81,7 @@ const selectedSite = computed(() =>
 const currentMax = computed(() =>
   Math.min(
     maxAmount,
-    selectedSite.value
+    selectedSite.value && (selectedSite.value.station == false)
       ? direction === 'import'
         ? selectedSite.value.surplus
         : selectedSite.value.deficit
