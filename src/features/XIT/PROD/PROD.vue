@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { getPlanetBurn } from '@src/core/burn';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { isDefined, isEmpty } from 'ts-extras';
 import LoadingSpinner from '@src/components/LoadingSpinner.vue';
@@ -24,11 +25,13 @@ const sites = computed(() => {
 const planetBurn = computed(() => sites.value?.map(getPlanetBurn).filter(isDefined) ?? []);
 
 function onAddAssignment(from: string, ticker: string, to: string, amount: number) {
-  addAssignment(from, ticker, to, amount);
+  const toStore = storagesStore.getByAddressableId(to)?.find(s => s.type === 'STORE');
+  addAssignment(from, ticker, toStore?.id ?? to, amount);
 }
 
 function importAssignment(from: string, ticker: string, to: string, amount: number) {
-  addAssignment(from, ticker, to, amount);
+  const fromStore = storagesStore.getByAddressableId(from)?.find(s => s.type === 'STORE');
+  addAssignment(fromStore?.id ?? from, ticker, to, amount);
 }
 </script>
 
