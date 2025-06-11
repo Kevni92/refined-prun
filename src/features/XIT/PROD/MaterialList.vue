@@ -15,10 +15,11 @@ const emit = defineEmits<{
   (e: 'import-assignment', ticker: string, siteId: string, amount: number): void;
 }>();
 
-const { burn, assignments, siteId } = defineProps<{
+const { burn, assignments, siteId, storeId } = defineProps<{
   burn: PlanetBurn;
   assignments: Record<string, Assignment[]>;
   siteId: string;
+  storeId: string;
 }>();
 
 const materials = computed(() => Object.keys(burn.burn).map(materialsStore.getByTicker));
@@ -58,6 +59,7 @@ function onImport(ticker: string, siteId: string, amount: number) {
     :material="material!"
     :assignments="assignments[material!.ticker] ?? []"
     :site-id="siteId"
+    :store-id="storeId"
     @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)"
     @import-assignment="(s, amt) => onImport(material!.ticker, s, amt)" />
   <tr><th colspan="8">Consumed</th></tr>
@@ -68,6 +70,7 @@ function onImport(ticker: string, siteId: string, amount: number) {
     :material="material!"
     :assignments="assignments[material!.ticker] ?? []"
     :site-id="siteId"
+    :store-id="storeId"
     @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)"
     @import-assignment="(s, amt) => onImport(material!.ticker, s, amt)" />
 </template>
