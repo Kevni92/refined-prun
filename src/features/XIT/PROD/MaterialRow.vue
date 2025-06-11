@@ -76,11 +76,15 @@ function siteName(id: string) {
     <td class="materialContainer">
       <MaterialIcon size="inline-table" :ticker="material.ticker" />
     </td>
-    <td :class="C.ColoredValue.negative">-{{ fixed0(burn.input + burn.workforce) }}</td>
-    <td :class="C.ColoredValue.positive">+{{ fixed0(burn.output) }}</td>
-    <td>{{ fixed0(importTotal) }}</td>
-    <td>{{ fixed0(exportTotal) }}</td>
-    <td :class="sumClass">{{ fixed0(sum) }}</td>
+    <td :class="C.ColoredValue.negative">
+      {{ burn.input + burn.workforce === 0 ? '' : '-' + fixed0(burn.input + burn.workforce) }}
+    </td>
+    <td :class="C.ColoredValue.positive">
+      {{ burn.output === 0 ? '' : '+' + fixed0(burn.output) }}
+    </td>
+    <td>{{ importTotal === 0 ? '' : fixed0(importTotal) }}</td>
+    <td>{{ exportTotal === 0 ? '' : fixed0(exportTotal) }}</td>
+    <td :class="sumClass">{{ sum === 0 ? '' : fixed0(sum) }}</td>
     <td><BalanceBar :value="sum" /></td>
     <td>
       <PrunButton dark inline @click.stop="openImport">IMPORT</PrunButton>
