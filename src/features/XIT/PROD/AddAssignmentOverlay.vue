@@ -30,6 +30,7 @@ interface SiteOption {
   value: string;
   deficit: number;
   surplus: number;
+  station?: boolean;
 }
 
 const sites = computed<SiteOption[]>(() => {
@@ -59,17 +60,18 @@ const sites = computed<SiteOption[]>(() => {
         value: w.storeId,
         deficit: 0,
         surplus: 0,
+        station: true,
       })) ?? [];
 
   return [...baseSites, ...stationSites];
 });
 
 const importOptions = computed(() =>
-  sites.value.filter(s => s.surplus > 0),
+  sites.value.filter(s => s.surplus > 0 || s.station),
 );
 
 const exportOptions = computed(() =>
-  sites.value.filter(s => s.deficit > 0),
+  sites.value.filter(s => s.deficit > 0 || s.station),
 );
 
 const selectedSite = computed(() =>

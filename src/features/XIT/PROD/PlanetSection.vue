@@ -2,6 +2,7 @@
 import { PlanetBurn } from '@src/core/burn';
 import PlanetHeader from '@src/features/XIT/BURN/PlanetHeader.vue';
 import MaterialList from './MaterialList.vue';
+import { useTileState } from './tile-state';
 
 const emit = defineEmits<{
   (
@@ -26,11 +27,17 @@ const { burn, assignments, canMinimize } = defineProps<{
   canMinimize?: boolean;
 }>();
 
-const expanded = ref(true);
+const expand = useTileState('expand');
+const naturalId = computed(() => burn.naturalId);
+const expanded = computed(() => expand.value.includes(naturalId.value));
 
 function toggle() {
   if (!canMinimize) return;
-  expanded.value = !expanded.value;
+  if (expanded.value) {
+    expand.value = expand.value.filter(id => id !== naturalId.value);
+  } else {
+    expand.value = [...expand.value, naturalId.value];
+  }
 }
 </script>
 
