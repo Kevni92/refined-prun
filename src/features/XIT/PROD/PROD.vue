@@ -7,6 +7,8 @@ import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { isDefined, isEmpty } from 'ts-extras';
 import LoadingSpinner from '@src/components/LoadingSpinner.vue';
 import PlanetSection from './PlanetSection.vue';
+import FilterButton from '@src/features/XIT/BURN/FilterButton.vue';
+import { useTileState } from './tile-state';
 import {
   addAssignment,
   getAssignments,
@@ -24,6 +26,8 @@ const sites = computed(() => {
 
 const planetBurn = computed(() => sites.value?.map(getPlanetBurn).filter(isDefined) ?? []);
 
+const showConsumption = useTileState('showConsumption');
+
 function onAddAssignment(from: string, ticker: string, to: string, amount: number) {
   const toStore = storagesStore.getByAddressableId(to)?.find(s => s.type === 'STORE');
   addAssignment(from, ticker, toStore?.id ?? to, amount);
@@ -38,6 +42,9 @@ function importAssignment(from: string, ticker: string, to: string, amount: numb
 <template>
   <LoadingSpinner v-if="sites === undefined" />
   <template v-else>
+    <div :class="C.ComExOrdersPanel.filter">
+      <FilterButton v-model="showConsumption">CONSUMPTION</FilterButton>
+    </div>
     <table>
       <thead>
         <tr>

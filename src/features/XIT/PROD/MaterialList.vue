@@ -4,6 +4,7 @@ import { PlanetBurn } from '@src/core/burn';
 import MaterialRow from './MaterialRow.vue';
 import { sortMaterials } from '@src/core/sort-materials';
 import { isDefined } from 'ts-extras';
+import { useTileState } from './tile-state';
 
 interface Assignment {
   siteId: string;
@@ -22,13 +23,16 @@ const { burn, assignments, siteId, storeId } = defineProps<{
   storeId: string;
 }>();
 
+const showConsumption = useTileState('showConsumption');
+
 const materials = computed(() => Object.keys(burn.burn).map(materialsStore.getByTicker));
 const sorted = computed(() => sortMaterials(materials.value.filter(isDefined)));
 
 function visible(material: PrunApi.Material | undefined) {
   if (!material) return false;
   const b = burn.burn[material.ticker];
-  return b.output !== 0 || b.input !== 0;
+  const isConsumption = b.output === 0 && b.input === 0;
+  return showConsumption.value || !isConsumption;
 }
 
 const produced = computed(() =>
