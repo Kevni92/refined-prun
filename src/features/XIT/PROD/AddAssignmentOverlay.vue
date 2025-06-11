@@ -25,19 +25,36 @@ const amount = ref(maxAmount);
 const siteLabel = computed(() => (direction === 'export' ? 'Destination' : 'Source'));
 const title = computed(() => (direction === 'export' ? 'Add Export' : 'Add Import'));
 
-const options = computed(() =>
+interface SiteOption {
+  name: string;
+  value: string;
+  deficit: number;
+  surplus: number;
+}
+
+const sites = computed<SiteOption[]>(() =>
   sitesStore.all.value?.map(site => {
     const burn = getPlanetBurn(site.siteId);
     const b = burn?.burn[ticker];
     const net = b ? b.output - b.input - b.workforce : 0;
-    const deficit = net < 0 ? -net : 0;
     return {
-      label:
-        getEntityNameFromAddress(site.address) +
-        (deficit > 0 ? ` (-${fixed0(deficit)})` : ''),
+      name: getEntityNameFromAddress(site.address),
       value: site.siteId,
+      deficit: net < 0 ? -net : 0,
+      surplus: net > 0 ? net : 0,
     };
   }) ?? []);
+
+const options = computed(() =>
+  sites.value.map(s => ({
+    label: s.name + (s.deficit > 0 ? ` (-${fixed0(s.deficit)})` : ''),
+    value: s.value,
+  })),
+);
+
+const importOptions = computed(() =>
+  sites.value.filter(s => s.surplus > 0),
+);
 
 function save() {
   if (!siteId.value || !amount.value) {
@@ -52,9 +69,29 @@ function save() {
   <div :class="C.DraftConditionEditor.form">
     <SectionHeader>{{ title }}</SectionHeader>
     <form>
-      <Active :label="siteLabel">
+      <Active v-if="direction === 'export'" :label="siteLabel">
         <SelectInput v-model="siteId" :options="options" />
       </Active>
+      <template v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>Site-Name</th>
+              <th>Überschuss</th>
+              <th>Aktion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="s in importOptions" :key="s.value">
+              <td>{{ s.name }}</td>
+              <td>{{ s.surplus === 0 ? '' : fixed0(s.surplus) }}</td>
+              <td>
+                <PrunButton dark inline @click="siteId = s.value">SELECT</PrunButton>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
       <Active label="Amount">
         <NumberInput v-model="amount" :max="maxAmount" :min="1" />
       </Active>
