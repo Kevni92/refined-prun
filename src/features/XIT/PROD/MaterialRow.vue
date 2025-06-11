@@ -3,6 +3,7 @@ import { MaterialBurn } from '@src/core/burn';
 import MaterialIcon from '@src/components/MaterialIcon.vue';
 import { fixed0 } from '@src/utils/format';
 import PrunButton from '@src/components/PrunButton.vue';
+import BalanceBar from '@src/components/BalanceBar.vue';
 import { showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import AddAssignmentOverlay from './AddAssignmentOverlay.vue';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
@@ -80,6 +81,7 @@ function siteName(id: string) {
     <td>{{ fixed0(importTotal) }}</td>
     <td>{{ fixed0(exportTotal) }}</td>
     <td :class="sumClass">{{ fixed0(sum) }}</td>
+    <td><BalanceBar :value="sum" /></td>
     <td>
       <PrunButton dark inline @click.stop="openImport">IMPORT</PrunButton>
       <PrunButton dark inline @click.stop="openAdd">EXPORT</PrunButton>
@@ -91,6 +93,7 @@ function siteName(id: string) {
     <td :class="$style.assignment">{{ a.amount < 0 ? siteName(a.siteId) : '' }}</td>
     <td :class="$style.assignment">{{ a.amount > 0 ? fixed0(a.amount) : '' }}</td>
     <td :class="$style.assignment">{{ a.amount < 0 ? fixed0(-a.amount) : '' }}</td>
+    <td :class="$style.assignment"></td>
     <td :class="$style.assignment"></td>
     <td :class="$style.assignment">
       <PrunButton danger dark inline @click.stop="removeAssignment(i)">DEL</PrunButton>
