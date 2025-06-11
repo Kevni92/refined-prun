@@ -16,8 +16,6 @@ const { burn } = defineProps<{
   onClick: () => void;
 }>();
 
-const days = computed(() => countDays(burn.burn));
-
 const importMass = computed(() => getImportMassTotal(burn.storeId));
 const exportMass = computed(() => getExportMassTotal(burn.storeId));
 const importVolume = computed(() => getImportVolumeTotal(burn.storeId));
@@ -25,8 +23,8 @@ const exportVolume = computed(() => getExportVolumeTotal(burn.storeId));
 </script>
 
 <template>
-  <tr :class="$style.row">
-    <td colspan="8" :class="$style.cell" @click="onClick">
+  <tr :class="$style.row"  @click="onClick">
+    <td colspan="3" :class="$style.cell">
       <span v-if="hasMinimize" :class="$style.minimize">
         {{ minimized ? '+' : '-' }}
       </span>
@@ -35,19 +33,22 @@ const exportVolume = computed(() => getExportVolumeTotal(burn.storeId));
         {{ burn.planetName != burn.naturalId ? `(${burn.naturalId})` : '' }}</span
       >
     </td>
-  </tr>
-  <tr :class="$style.row">
-    <td colspan="8" :class="$style.subCell">
-      Import: {{ fixed2(importMass) }}t / {{ fixed2(importVolume) }}m³ | Export:
-      {{ fixed2(exportMass) }}t / {{ fixed2(exportVolume) }}m³
-    </td>
+    <td :class="$style.subCell">{{ fixed2(importMass) }}t / {{ fixed2(importVolume) }}m³</td>
+    <td :class="$style.subCell">{{ fixed2(exportMass) }}t / {{ fixed2(exportVolume) }}m³</td>
+    <td colspan="3"></td>
   </tr>
 </template>
 
 <style module>
 .row {
   border-bottom: 1px solid #2b485a;
-  background-color: #2d3940;
+}
+
+.row > td {
+  background-color: #2d3940 !important;
+}
+.row:hover > td {
+  background-color: #192024 !important;
 }
 
 .cell {
@@ -71,6 +72,7 @@ const exportVolume = computed(() => getExportVolumeTotal(burn.storeId));
 
 .subCell {
   font-size: 11px;
-  text-align: center;
+  text-align: right;
+  cursor: pointer;
 }
 </style>
