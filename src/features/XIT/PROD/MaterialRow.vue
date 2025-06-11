@@ -9,6 +9,7 @@ import AddAssignmentOverlay from './AddAssignmentOverlay.vue';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
+import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { removeAssignment as removeStoreAssignment } from '@src/store/production-assignments';
 
 interface Assignment {
@@ -110,7 +111,13 @@ function siteName(id: string) {
   const site =
     sitesStore.getById(id) ??
     sitesStore.getById(storagesStore.getById(id)?.addressableId);
-  return site ? getEntityNameFromAddress(site.address) : id;
+  if (site) {
+    return getEntityNameFromAddress(site.address) ?? id;
+  }
+  const warehouse =
+    warehousesStore.getById(id) ??
+    warehousesStore.getById(storagesStore.getById(id)?.addressableId);
+  return warehouse ? getEntityNameFromAddress(warehouse.address) ?? id : id;
 }
 </script>
 

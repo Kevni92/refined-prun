@@ -5,6 +5,7 @@ import NumberInput from '@src/components/forms/NumberInput.vue';
 import Commands from '@src/components/forms/Commands.vue';
 import PrunButton from '@src/components/PrunButton.vue';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { getPlanetBurn } from '@src/core/burn';
 import { fixed0 } from '@src/utils/format';
@@ -31,20 +32,37 @@ interface SiteOption {
   surplus: number;
 }
 
-const sites = computed<SiteOption[]>(() =>
-  sitesStore.all.value
-    ?.filter(s => s.siteId !== currentSiteId)
-    .map(site => {
-      const burn = getPlanetBurn(site.siteId);
-      const b = burn?.burn[ticker];
-      const net = b ? b.output - b.input - b.workforce : 0;
-      return {
-        name: getEntityNameFromAddress(site.address),
-        value: site.siteId,
-        deficit: net < 0 ? -net : 0,
-        surplus: net > 0 ? net : 0,
-      };
-    }) ?? []);
+const sites = computed<SiteOption[]>(() => {
+  const baseSites =
+    sitesStore.all.value
+      ?.filter(s => s.siteId !== currentSiteId)
+      .map(site => {
+        const burn = getPlanetBurn(site.siteId);
+        const b = burn?.burn[ticker];
+        const net = b ? b.output - b.input - b.workforce : 0;
+        return {
+          name: getEntityNameFromAddress(site.address),
+          value: site.siteId,
+          deficit: net < 0 ? -net : 0,
+          surplus: net > 0 ? net : 0,
+        };
+      }) ?? [];
+
+  const stationSites =
+    warehousesStore.all.value
+      ?.filter(
+        w =>
+          w.storeId !== currentSiteId && w.address?.lines[1]?.type === 'STATION',
+      )
+      .map(w => ({
+        name: getEntityNameFromAddress(w.address)!,
+        value: w.storeId,
+        deficit: 0,
+        surplus: 0,
+      })) ?? [];
+
+  return [...baseSites, ...stationSites];
+});
 
 const importOptions = computed(() =>
   sites.value.filter(s => s.surplus > 0),
