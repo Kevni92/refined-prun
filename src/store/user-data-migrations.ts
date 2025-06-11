@@ -84,7 +84,11 @@ const migrations: Migration[] = [
     };
   },
   // Placeholders of beta version migrations
-  () => {},
+  userData => {
+    if (!('productionAssignments' in userData)) {
+      userData.productionAssignments = {};
+    }
+  },
   () => {},
   () => {},
   () => {},
