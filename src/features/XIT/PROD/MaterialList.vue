@@ -12,6 +12,7 @@ interface Assignment {
 
 const emit = defineEmits<{
   (e: 'add-assignment', ticker: string, siteId: string, amount: number): void;
+  (e: 'import-assignment', ticker: string, siteId: string, amount: number): void;
 }>();
 
 const { burn, assignments } = defineProps<{
@@ -41,6 +42,10 @@ const consumed = computed(() =>
 function onAdd(ticker: string, siteId: string, amount: number) {
   emit('add-assignment', ticker, siteId, amount);
 }
+
+function onImport(ticker: string, siteId: string, amount: number) {
+  emit('import-assignment', ticker, siteId, amount);
+}
 </script>
 
 <template>
@@ -51,7 +56,8 @@ function onAdd(ticker: string, siteId: string, amount: number) {
     :burn="burn.burn[material!.ticker]"
     :material="material!"
     :assignments="assignments[material!.ticker] ?? []"
-    @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)" />
+    @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)"
+    @import-assignment="(s, amt) => onImport(material!.ticker, s, amt)" />
   <tr><th colspan="7">Consumed</th></tr>
   <MaterialRow
     v-for="material in consumed"
@@ -59,5 +65,6 @@ function onAdd(ticker: string, siteId: string, amount: number) {
     :burn="burn.burn[material!.ticker]"
     :material="material!"
     :assignments="assignments[material!.ticker] ?? []"
-    @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)" />
+    @add-assignment="(s, amt) => onAdd(material!.ticker, s, amt)"
+    @import-assignment="(s, amt) => onImport(material!.ticker, s, amt)" />
 </template>

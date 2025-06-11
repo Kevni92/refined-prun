@@ -10,16 +10,20 @@ import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addr
 import { getPlanetBurn } from '@src/core/burn';
 import { fixed0 } from '@src/utils/format';
 
-const { maxAmount, ticker, onSave } = defineProps<{
+const { maxAmount, ticker, onSave, direction = 'export' } = defineProps<{
   maxAmount: number;
   ticker: string;
   onSave: (siteId: string, amount: number) => void;
+  direction?: 'export' | 'import';
 }>();
 
 const emit = defineEmits<{ (e: 'close'): void }>();
 
 const siteId = ref('');
 const amount = ref(maxAmount);
+
+const siteLabel = computed(() => (direction === 'export' ? 'Destination' : 'Source'));
+const title = computed(() => (direction === 'export' ? 'Add Export' : 'Add Import'));
 
 const options = computed(() =>
   sitesStore.all.value?.map(site => {
@@ -46,9 +50,9 @@ function save() {
 
 <template>
   <div :class="C.DraftConditionEditor.form">
-    <SectionHeader>Add Assignment</SectionHeader>
+    <SectionHeader>{{ title }}</SectionHeader>
     <form>
-      <Active label="Destination">
+      <Active :label="siteLabel">
         <SelectInput v-model="siteId" :options="options" />
       </Active>
       <Active label="Amount">

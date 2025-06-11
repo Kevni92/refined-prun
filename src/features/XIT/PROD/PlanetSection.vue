@@ -11,6 +11,13 @@ const emit = defineEmits<{
     to: string,
     amount: number,
   ): void;
+  (
+    e: 'import-assignment',
+    from: string,
+    ticker: string,
+    to: string,
+    amount: number,
+  ): void;
 }>();
 
 const { burn, assignments, canMinimize } = defineProps<{
@@ -36,6 +43,7 @@ function toggle() {
       :burn="burn"
       :assignments="assignments"
       @add-assignment="(t, s, a) => emit('add-assignment', burn.storeId, t, s, a)"
+      @import-assignment="(t, s, a) => emit('import-assignment', s, t, burn.storeId, a)"
     />
   </tbody>
 </template>

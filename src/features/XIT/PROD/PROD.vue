@@ -30,6 +30,10 @@ function addAssignment(from: string, ticker: string, to: string, amount: number)
   const destTicker = (dest[ticker] ??= []);
   destTicker.push({ siteId: from, amount });
 }
+
+function importAssignment(from: string, ticker: string, to: string, amount: number) {
+  addAssignment(from, ticker, to, amount);
+}
 </script>
 
 <template>
@@ -53,7 +57,8 @@ function addAssignment(from: string, ticker: string, to: string, amount: number)
         :burn="burn"
         :assignments="assignments[burn.storeId] ??= {}"
         :can-minimize="planetBurn.length > 1"
-        @add-assignment="addAssignment" />
+        @add-assignment="addAssignment"
+        @import-assignment="importAssignment" />
     </table>
   </template>
 </template>
