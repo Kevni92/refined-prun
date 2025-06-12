@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Active from '@src/components/forms/Active.vue';
 import SelectInput from '@src/components/forms/SelectInput.vue';
+import NumberInput from '@src/components/forms/NumberInput.vue';
 import PrunButton from '@src/components/PrunButton.vue';
 import { shipsStore } from '@src/infrastructure/prun-api/data/ships';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
@@ -8,15 +9,23 @@ import { serializeStorage } from '@src/features/XIT/ACT/actions/mtra/utils';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { getEntityNaturalIdFromAddress } from '@src/infrastructure/prun-api/data/addresses';
-import { showBuffer, closeWhenDone } from '@src/infrastructure/prun-ui/buffers';
-import { changeInputValue, clickElement, focusElement } from '@src/util';
-import { $ } from '@src/utils/select-dom';
+import { calculateTestFlight } from '@src/infrastructure/prun-api/ship-flight';
+import dayjs from 'dayjs';
 
 const ship = ref<string>();
 const origin = ref<string>();
 const destination = ref<string>();
 const duration = ref<string>('');
 const consumption = ref<string>('');
+
+// Additional parameters for test flight calculation
+const landing = ref(false);
+const payload = ref<number>(0);
+const conditionValue = ref<number>(100);
+const stlFuel = ref<number>(0);
+const ftlFuel = ref<number>(0);
+const fuelUsageFactor = ref<number>(1);
+const reactorUsageFactor = ref<number>(1);
 
 
 const shipOptions = computed(() =>
@@ -44,29 +53,27 @@ function getPlanetId(store: PrunApi.Store) {
   }
 }
 
-async function SelectElement (tile: HTMLElement, input: HTMLInputElement, id: string)
-{
-  focusElement(input);
-  changeInputValue(input, id);
-
-  const suggestionsContainer = await $(tile, C.AddressSelector.suggestionsContainer);
-  const suggestionsList = await $(tile, C.AddressSelector.suggestionsList);
-  await $(suggestionsList, 'li');
-  
-  suggestionsContainer.style.display = 'none';
-
-  const elements = Array.from(suggestionsList.querySelectorAll("li"));
-  const match = elements.find(x => x.textContent?.includes(id));
-
-  if (!match) {
-    suggestionsContainer.style.display = '';
-    console.log(`Origin ${id} not found in the origin selector`);
-    return;
+function formatDuration(ms: number) {
+  let duration = dayjs.duration({ milliseconds: ms });
+  const days = Math.floor(duration.asDays());
+  duration = duration.subtract(days, 'days');
+  const hours = Math.floor(duration.asHours());
+  duration = duration.subtract(hours, 'hours');
+  const minutes = Math.floor(duration.asMinutes());
+  duration = duration.subtract(minutes, 'minutes');
+  const seconds = Math.floor(duration.asSeconds());
+  if (days > 0) {
+    return `${days}d ${hours}h`;
   }
-
-  await clickElement(match);
-  suggestionsContainer.style.display = 'none';
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+  return `${seconds}s`;
 }
+
 
 async function calculate() {
   const shipObj = shipsStore.getById(ship.value);
@@ -74,27 +81,27 @@ async function calculate() {
   const destinationObj = storagesStore.getById(destination.value);
   if (!shipObj || !originObj || !destinationObj) return;
 
-  const tile = await showBuffer(`BTF ${shipObj.blueprintNaturalId}`, { hide: true, autoSubmit: true });
-  if (!tile) return;
+  const plan = await calculateTestFlight({
+    blueprintId: shipObj.blueprintNaturalId,
+    origin: getPlanetId(originObj),
+    destination: getPlanetId(destinationObj),
+    landing: landing.value,
+    waypoints: [],
+    fuelUsageFactor: fuelUsageFactor.value,
+    reactorUsageFactor: reactorUsageFactor.value,
+    payload: payload.value,
+    condition: conditionValue.value,
+    stlFuel: stlFuel.value,
+    ftlFuel: ftlFuel.value,
+  });
 
-  await $(tile, C.AddressSelector.input);
-  try {
-    const inputs = _$$(tile, C.AddressSelector.input);
-    if (inputs.length != 2) return;
-
-
-    await SelectElement(tile, inputs[0] as HTMLInputElement, getPlanetId(originObj));
-    await SelectElement(tile, inputs[1] as HTMLInputElement, getPlanetId(destinationObj));
-
-    const table = await $(tile, 'table');
-    const row = table.querySelector('tbody tr');
-    if (row) {
-      const cells = row.querySelectorAll('td');
-      duration.value = cells[3]?.textContent?.trim() ?? '';
-      consumption.value = cells[6]?.textContent?.trim() ?? '';
-    }
-  } finally {
-    closeWhenDone(tile);
+  duration.value = formatDuration(plan.eta.millis);
+  const stl = plan.stlFuelConsumption ?? 0;
+  const ftl = plan.ftlFuelConsumption ?? 0;
+  if (stl || ftl) {
+    consumption.value = String(stl + ftl);
+  } else {
+    consumption.value = '';
   }
 }
 
@@ -117,6 +124,27 @@ async function click ()
       </Active>
       <Active label="Destination">
         <SelectInput v-model="destination" :options="locationOptions" />
+      </Active>
+      <Active label="Landing">
+        <input type="checkbox" v-model="landing" />
+      </Active>
+      <Active label="Payload">
+        <NumberInput v-model="payload" />
+      </Active>
+      <Active label="Condition">
+        <NumberInput v-model="conditionValue" />
+      </Active>
+      <Active label="STL Fuel">
+        <NumberInput v-model="stlFuel" />
+      </Active>
+      <Active label="FTL Fuel">
+        <NumberInput v-model="ftlFuel" />
+      </Active>
+      <Active label="Fuel Usage Factor">
+        <NumberInput v-model="fuelUsageFactor" decimal-places="2" />
+      </Active>
+      <Active label="Reactor Usage Factor">
+        <NumberInput v-model="reactorUsageFactor" decimal-places="2" />
       </Active>
     </form>
     <PrunButton
