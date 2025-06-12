@@ -9,8 +9,9 @@ import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { getEntityNaturalIdFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { showBuffer, closeWhenDone } from '@src/infrastructure/prun-ui/buffers';
-import { changeInputValue, focusElement } from '@src/util';
+import { changeInputValue, clickElement, focusElement } from '@src/util';
 import { $ } from '@src/utils/select-dom';
+import { sleep } from '@src/utils/sleep';
 
 const ship = ref<string>();
 const origin = ref<string>();
@@ -18,14 +19,16 @@ const destination = ref<string>();
 const duration = ref<string>('');
 const consumption = ref<string>('');
 
+const timeout = 100;
+
 const shipOptions = computed(() =>
   (shipsStore.all.value ?? []).map(s => ({ label: s.name, value: s.id }))
 );
 
 const locationOptions = computed(() =>
   (storagesStore.all.value ?? [])
-    .filter(x => x.type === 'STORE' || x.type === 'WAREHOUSE_STORE')
-    .map(s => ({ label: serializeStorage(s), value: s.id }))
+    .filter(storage => storage.type === 'STORE' || storage.type === 'WAREHOUSE_STORE')
+    .map(storage => ({ label: serializeStorage(storage), value: storage.id }))
 );
 
 function getPlanetId(store: PrunApi.Store) {
@@ -43,32 +46,72 @@ function getPlanetId(store: PrunApi.Store) {
   }
 }
 
-async function calculate() {
-  const s = shipsStore.getById(ship.value);
-  const o = storagesStore.getById(origin.value);
-  const d = storagesStore.getById(destination.value);
-  if (!s || !o || !d) return;
+async function SelectElement (tile: HTMLElement, input: HTMLInputElement, id: string)
+{
+  focusElement(input);
+  changeInputValue(input, id);
 
-  const win = await showBuffer(`BTF ${s.blueprintNaturalId}`, { hide: true });
+  const suggestionsContainer = await $(tile, C.AddressSelector.suggestionsContainer);
+
+  await sleep(timeout); 
+
+  const suggestionsList = await $(tile, C.AddressSelector.suggestionsList);
+  if (!suggestionsList) {
+    console.log(`Origin ${id} not found in the origin selector`);
+    return;
+  }
+  
+  suggestionsContainer.style.display = 'none';
+
+  const elements = Array.from(suggestionsList.querySelectorAll("li"));
+  const match = elements.find(x => x.textContent?.includes(id));
+
+  if (!match) {
+    suggestionsContainer.style.display = '';
+    console.log(`Origin ${id} not found in the origin selector`);
+    return;
+  }
+
+  await clickElement(match);
+  suggestionsContainer.style.display = 'none';
+}
+
+async function calculate() {
+  const shipObj = shipsStore.getById(ship.value);
+  const originObj = storagesStore.getById(origin.value);
+  const destinationObj = storagesStore.getById(destination.value);
+  if (!shipObj || !originObj || !destinationObj) return;
+
+  const tile = await showBuffer(`BTF ${shipObj.blueprintNaturalId}`, { hide: true, autoSubmit: true });
+  if (!tile) return;
+
+  await sleep(timeout);
   try {
-    const inputs = win.getElementsByTagName('input');
-    if (inputs.length >= 2) {
-      focusElement(inputs[0] as HTMLInputElement);
-      changeInputValue(inputs[0] as HTMLInputElement, getPlanetId(o));
-      focusElement(inputs[1] as HTMLInputElement);
-      changeInputValue(inputs[1] as HTMLInputElement, getPlanetId(d));
-    }
-    const table = await $(win, 'table');
+    const inputs = _$$(tile, C.AddressSelector.input);
+    if (inputs.length != 2) return;
+
+
+    await SelectElement(tile, inputs[0] as HTMLInputElement, getPlanetId(originObj));
+    await SelectElement(tile, inputs[1] as HTMLInputElement, getPlanetId(destinationObj));
+
+    const table = await $(tile, 'table');
     const row = table.querySelector('tbody tr');
     if (row) {
       const cells = row.querySelectorAll('td');
       duration.value = cells[3]?.textContent?.trim() ?? '';
-      consumption.value = cells[4]?.textContent?.trim() ?? '';
+      consumption.value = cells[6]?.textContent?.trim() ?? '';
     }
   } finally {
-    closeWhenDone(win);
+    closeWhenDone(tile);
   }
 }
+
+
+async function click ()
+{
+  await calculate();
+}
+
 </script>
 
 <template>
@@ -87,7 +130,7 @@ async function calculate() {
     <PrunButton
       primary
       :disabled="!(ship && origin && destination)"
-      @click="calculate"
+      @click="click"
     >
       CALCULATE
     </PrunButton>

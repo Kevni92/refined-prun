@@ -3,7 +3,7 @@ import { UI_TILES_CHANGE_COMMAND } from '@src/infrastructure/prun-api/client-mes
 import { dispatchClientPrunMessage } from '@src/infrastructure/prun-api/prun-api-listener';
 import { changeInputValue, clickElement } from '@src/util';
 import { sleep } from '@src/utils/sleep';
-import { setBufferSize, showBuffer } from '@src/infrastructure/prun-ui/buffers';
+import { setBufferSize, showBuffer, ShowBufferOptions } from '@src/infrastructure/prun-ui/buffers';
 
 interface TileAllocatorOptions {
   tile: PrunTile;
@@ -65,8 +65,8 @@ async function changeTileCommand(tile: HTMLElement, command: string) {
   await $(tile, C.TileFrame.frame);
 }
 
-async function requestTile(command: string) {
-  const window = await showBuffer(command, { autoSubmit: true });
+export async function requestTile(command: string, options?: ShowBufferOptions) {
+  const window = await showBuffer(command, options);
   await sleep(0);
   const body = _$(window, C.Window.body);
   return body ? _$(body, C.Tile.tile) : undefined;

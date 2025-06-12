@@ -17,7 +17,7 @@ import { onNodeTreeMutation } from '@src/utils/on-node-tree-mutation';
 let isBusy = false;
 const pendingResolvers: (() => void)[] = [];
 
-interface ShowBufferOptions {
+export interface ShowBufferOptions {
   force?: boolean;
   autoSubmit?: boolean;
   autoClose?: boolean;
