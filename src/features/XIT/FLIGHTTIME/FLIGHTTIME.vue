@@ -5,6 +5,9 @@ import PrunButton from '@src/components/PrunButton.vue';
 import { shipsStore } from '@src/infrastructure/prun-api/data/ships';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { serializeStorage } from '@src/features/XIT/ACT/actions/mtra/utils';
+import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
+import { getEntityNaturalIdFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { showBuffer, closeWhenDone } from '@src/infrastructure/prun-ui/buffers';
 import { changeInputValue } from '@src/util';
 import { $ } from '@src/utils/select-dom';
@@ -25,6 +28,21 @@ const locationOptions = computed(() =>
     .map(s => ({ label: serializeStorage(s), value: s.id }))
 );
 
+function getPlanetId(store: PrunApi.Store) {
+  switch (store.type) {
+    case 'STORE': {
+      const site = sitesStore.getById(store.addressableId);
+      return getEntityNaturalIdFromAddress(site?.address) ?? '';
+    }
+    case 'WAREHOUSE_STORE': {
+      const warehouse = warehousesStore.getById(store.addressableId);
+      return getEntityNaturalIdFromAddress(warehouse?.address) ?? '';
+    }
+    default:
+      return '';
+  }
+}
+
 async function calculate() {
   const s = shipsStore.getById(ship.value);
   const o = storagesStore.getById(origin.value);
@@ -35,8 +53,8 @@ async function calculate() {
   try {
     const inputs = win.getElementsByTagName('input');
     if (inputs.length >= 2) {
-      changeInputValue(inputs[0] as HTMLInputElement, serializeStorage(o));
-      changeInputValue(inputs[1] as HTMLInputElement, serializeStorage(d));
+      changeInputValue(inputs[0] as HTMLInputElement, getPlanetId(o));
+      changeInputValue(inputs[1] as HTMLInputElement, getPlanetId(d));
     }
     const table = await $(win, 'table');
     const row = table.querySelector('tbody tr');
