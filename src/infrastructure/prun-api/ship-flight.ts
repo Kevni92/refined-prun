@@ -1,4 +1,4 @@
-import { dispatchClientPrunMessage } from '@src/infrastructure/prun-api/prun-api-listener';
+import { dispatchClientPrunMessage, dispatchPrunMessage } from '@src/infrastructure/prun-api/prun-api-listener';
 import { context } from '@src/infrastructure/prun-api/data/screens';
 import { flightPlansStore } from '@src/infrastructure/prun-api/data/flight-plans';
 import { watchUntil } from '@src/utils/watch';
@@ -33,7 +33,7 @@ export async function calculateTestFlight(
     contextId: context.value,
   };
 
-  if (!dispatchClientPrunMessage(message)) {
+  if (!dispatchPrunMessage(message)) {
     throw new Error('Unable to dispatch test flight message');
   }
 

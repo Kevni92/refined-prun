@@ -6,13 +6,21 @@ export type Middleware<T> = {
   onOpen: () => void;
   onMessage: (payload: T) => boolean;
   dispatchClientMessage: Ref<((payload: T) => void) | undefined>;
+  sendMessage?: (payload: T) => void;
 };
 
 export default function socketIOMiddleware<T>(middleware: Middleware<T>) {
   const originalAddEventListener = WebSocket.prototype.addEventListener;
+  
   window.WebSocket = new Proxy(WebSocket, {
     construct(target: typeof WebSocket, args: [string, (string | string[])?]) {
       const ws = new target(...args);
+
+      middleware.sendMessage = (message: T) => {
+        const mess = encodeMessage(message);
+        console.log(mess);
+        //ws.send();
+      };
 
       return new Proxy(ws, {
         set(target, prop, value) {
@@ -40,36 +48,7 @@ export default function socketIOMiddleware<T>(middleware: Middleware<T>) {
         },
         get(target, prop) {
           if (prop === 'addEventListener') {
-            return (
-              type: string,
-              listener: EventListenerOrEventListenerObject,
-              options?: boolean | AddEventListenerOptions,
-            ) => {
-              if (type === 'message') {
-                middleware.dispatchClientMessage.value = message => {
-                  if (typeof listener === 'function') {
-                    listener(new MessageEvent('message', { data: encodeMessage(message) }));
-                  } else {
-                    listener.handleEvent(
-                      new MessageEvent('message', { data: encodeMessage(message) }),
-                    );
-                  }
-                };
-                const wrapped = (e: MessageEvent) => {
-                  const data = processMessage(e.data, middleware);
-                  const event =
-                    data === e.data ? e : new MessageEvent('message', { data });
-                  if (typeof listener === 'function') {
-                    listener(event);
-                  } else {
-                    listener.handleEvent(event);
-                  }
-                };
-                originalAddEventListener.call(target, type, wrapped, options);
-                return;
-              }
-              return originalAddEventListener.call(target, type, listener as any, options as any);
-            };
+            return addEventListener.bind(target);
           }
           const value = Reflect.get(target, prop);
           if (typeof value === 'function') {
