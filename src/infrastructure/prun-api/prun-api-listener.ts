@@ -63,6 +63,13 @@ export const canDispatchClientPrunMessage = computed(
   () => !!middleware.dispatchClientMessage.value,
 );
 
+export function dispatchPrunMessage(message: Message) {
+  if (!middleware.sendMessage) return false;
+
+  middleware.sendMessage(message);
+  return true;
+}
+
 export function dispatchClientPrunMessage(message: Message) {
   if (!middleware.dispatchClientMessage.value) {
     return false;
