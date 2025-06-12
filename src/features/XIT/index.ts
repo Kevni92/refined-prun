@@ -15,6 +15,7 @@ import './FIN/FINPR';
 import './FINBS/FINBS';
 import './FINCH/FINCH';
 import './GIF';
+import './FLIGHTTIME/FLIGHTTIME';
 import './HEALTH';
 import './HELP';
 import './HQUC';
