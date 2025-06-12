@@ -11,7 +11,6 @@ import { getEntityNaturalIdFromAddress } from '@src/infrastructure/prun-api/data
 import { showBuffer, closeWhenDone } from '@src/infrastructure/prun-ui/buffers';
 import { changeInputValue, clickElement, focusElement } from '@src/util';
 import { $ } from '@src/utils/select-dom';
-import { sleep } from '@src/utils/sleep';
 
 const ship = ref<string>();
 const origin = ref<string>();
@@ -19,7 +18,6 @@ const destination = ref<string>();
 const duration = ref<string>('');
 const consumption = ref<string>('');
 
-const timeout = 100;
 
 const shipOptions = computed(() =>
   (shipsStore.all.value ?? []).map(s => ({ label: s.name, value: s.id }))
@@ -52,14 +50,8 @@ async function SelectElement (tile: HTMLElement, input: HTMLInputElement, id: st
   changeInputValue(input, id);
 
   const suggestionsContainer = await $(tile, C.AddressSelector.suggestionsContainer);
-
-  await sleep(timeout); 
-
   const suggestionsList = await $(tile, C.AddressSelector.suggestionsList);
-  if (!suggestionsList) {
-    console.log(`Origin ${id} not found in the origin selector`);
-    return;
-  }
+  await $(suggestionsList, 'li');
   
   suggestionsContainer.style.display = 'none';
 
@@ -85,7 +77,7 @@ async function calculate() {
   const tile = await showBuffer(`BTF ${shipObj.blueprintNaturalId}`, { hide: true, autoSubmit: true });
   if (!tile) return;
 
-  await sleep(timeout);
+  await $(tile, C.AddressSelector.input);
   try {
     const inputs = _$$(tile, C.AddressSelector.input);
     if (inputs.length != 2) return;
