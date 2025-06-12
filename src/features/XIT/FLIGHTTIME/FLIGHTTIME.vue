@@ -9,7 +9,7 @@ import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { getEntityNaturalIdFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { showBuffer, closeWhenDone } from '@src/infrastructure/prun-ui/buffers';
-import { changeInputValue } from '@src/util';
+import { changeInputValue, focusElement } from '@src/util';
 import { $ } from '@src/utils/select-dom';
 
 const ship = ref<string>();
@@ -53,15 +53,17 @@ async function calculate() {
   try {
     const inputs = win.getElementsByTagName('input');
     if (inputs.length >= 2) {
+      focusElement(inputs[0] as HTMLInputElement);
       changeInputValue(inputs[0] as HTMLInputElement, getPlanetId(o));
+      focusElement(inputs[1] as HTMLInputElement);
       changeInputValue(inputs[1] as HTMLInputElement, getPlanetId(d));
     }
     const table = await $(win, 'table');
     const row = table.querySelector('tbody tr');
     if (row) {
       const cells = row.querySelectorAll('td');
-      duration.value = cells[2]?.textContent?.trim() ?? '';
-      consumption.value = cells[3]?.textContent?.trim() ?? '';
+      duration.value = cells[3]?.textContent?.trim() ?? '';
+      consumption.value = cells[4]?.textContent?.trim() ?? '';
     }
   } finally {
     closeWhenDone(win);
