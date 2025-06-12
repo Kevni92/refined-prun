@@ -23,13 +23,18 @@ async function onComExPanelReady(comExPanel: HTMLElement) {
     categoryOptions.set(option.value, option);
   }
 
-  const materialRows = new Map<string, HTMLElement>();
+  const materialRows = new Map<string, HTMLElement[]>();
 
   async function loadMaterialRows() {
-    const tbody = await $(comExPanel, 'tbody');
-    for (const row of _$$(tbody, 'tr')) {
-      const labelText = await $(row, C.ColoredIcon.label);
-      materialRows.set(labelText.innerText, row);
+    materialRows.clear();
+    const tbodies = _$$(comExPanel, 'tbody');
+    for (const tbody of tbodies) {
+      for (const row of _$$(tbody, 'tr')) {
+        const labelText = await $(row, C.ColoredIcon.label);
+        const arr = materialRows.get(labelText.innerText) ?? [];
+        arr.push(row);
+        materialRows.set(labelText.innerText, arr);
+      }
     }
     triggerRef(searchText);
   }
@@ -40,9 +45,17 @@ async function onComExPanelReady(comExPanel: HTMLElement) {
   // If CX loads a category it's already seen, it loads the data from memory and only tr's will be changed.
   watch(selectValue, loadMaterialRows);
 
-  const resetMatches = (value: HTMLElement) => {
-    if (value.isConnected) {
-      value.classList.toggle(css.hidden, searchText.value.length !== 0);
+  const resetCategoryMatch = (element: HTMLElement) => {
+    if (element.isConnected) {
+      element.classList.toggle(css.hidden, searchText.value.length !== 0);
+    }
+  };
+
+  const resetRowMatches = (elements: HTMLElement[]) => {
+    for (const element of elements) {
+      if (element.isConnected) {
+        element.classList.toggle(css.hidden, searchText.value.length !== 0);
+      }
     }
   };
 
@@ -50,8 +63,8 @@ async function onComExPanelReady(comExPanel: HTMLElement) {
   watchEffectWhileNodeAlive(comExPanel, () => {
     const searchTerm = searchText.value.toUpperCase();
 
-    categoryOptions.forEach(resetMatches);
-    materialRows.forEach(resetMatches);
+    categoryOptions.forEach(resetCategoryMatch);
+    materialRows.forEach(resetRowMatches);
 
     const materials = materialsStore.all.value;
     if (searchTerm.length === 0 || !materials) {
@@ -66,9 +79,13 @@ async function onComExPanelReady(comExPanel: HTMLElement) {
         if (optionElement) {
           optionElement.classList.remove(css.hidden);
         }
-        const rowElement = materialRows.get(material.ticker);
-        if (rowElement?.isConnected) {
-          rowElement.classList.remove(css.hidden);
+        const rowElements = materialRows.get(material.ticker);
+        if (rowElements) {
+          for (const element of rowElements) {
+            if (element.isConnected) {
+              element.classList.remove(css.hidden);
+            }
+          }
         }
       }
     }
