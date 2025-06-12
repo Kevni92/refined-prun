@@ -30,6 +30,7 @@
     "math-expression-evaluator": "^2.0.5",
     "one-mutation": "^3.0.1",
     "onetime": "^7.0.0",
+    "orbjs": "^0.2.2",
     "socket.io-parser": "^4.2.4",
     "tinycolor2": "^1.6.0",
     "ts-extras": "^0.13.0",
@@ -38,7 +39,6 @@
     "uuid": "^10.0.0",
     "vue": "^3.5.13",
     "vue-chartjs": "^5.3.1",
-    "vue-d3-network": "^0.10.0",
     "vue-draggable-plus": "^0.5.3"
   },
   "devDependencies": {

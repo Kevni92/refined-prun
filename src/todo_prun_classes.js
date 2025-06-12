@@ -425,3 +425,282 @@
             e
         }()
           , Nle = new Dle
+
+
+
+
+
+
+
+
+        var DA = function() {
+            function e() {
+                !function(e, t) {
+                    if (!(e instanceof t))
+                        throw new TypeError("Cannot call a class as a function")
+                }(this, e)
+            }
+            var t, n;
+            return t = e,
+            n = [{
+                key: "newSystemAddress",
+                value: function(e) {
+                    return {
+                        lines: [{
+                            entity: {
+                                id: e
+                            },
+                            type: "SYSTEM"
+                        }]
+                    }
+                }
+            }, {
+                key: "systemAddress",
+                value: function(t) {
+                    return e.isAddress(t) ? this.isSystemAddress(t) ? t : {
+                        lines: [t.lines[0]]
+                    } : null
+                }
+            }, {
+                key: "naturalId",
+                value: function(t) {
+                    if (!e.isAddress(t))
+                        return null;
+                    var n = t.lines[t.lines.length - 1];
+                    return "ORBIT" === n.type ? null : n.entity.naturalId
+                }
+            }, {
+                key: "isStringSystemAddress",
+                value: function(e) {
+                    var t = new RegExp(uA,"i");
+                    return !!e.match(t)
+                }
+            }, {
+                key: "isSystemAddress",
+                value: function(t) {
+                    return !(!e.isAddress(t) || 1 !== t.lines.length)
+                }
+            }, {
+                key: "systemId",
+                value: function(t) {
+                    return e.isAddress(t) ? t.lines[0].entity.id : null
+                }
+            }, {
+                key: "systemNaturalId",
+                value: function(t) {
+                    return e.isAddress(t) ? t.lines[0].entity.naturalId : null
+                }
+            }, {
+                key: "systemHasName",
+                value: function(e) {
+                    return e.lines[0].entity.name !== e.lines[0].entity.naturalId
+                }
+            }, {
+                key: "isStringPlanetAddress",
+                value: function(e) {
+                    var t = new RegExp(lA,"i");
+                    return !!e.match(t)
+                }
+            }, {
+                key: "isPlanetAddress",
+                value: function(t) {
+                    return !(!e.isAddress(t) || 2 !== t.lines.length || !this._isPlanetLine(t.lines[1]))
+                }
+            }, {
+                key: "containsPlanetAddress",
+                value: function(t) {
+                    return !(!e.isAddress(t) || !e._isPlanetLine(t.lines[1]))
+                }
+            }, {
+                key: "_isPlanetLine",
+                value: function(e) {
+                    return e && "PLANET" === e.type
+                }
+            }, {
+                key: "planetNaturalId",
+                value: function(t) {
+                    if (!e.isAddress(t))
+                        return null;
+                    var n = t.lines.find((function(t) {
+                        return e._isPlanetLine(t)
+                    }
+                    ));
+                    return n ? n.entity.naturalId : null
+                }
+            }, {
+                key: "planetId",
+                value: function(t) {
+                    if (!e.isAddress(t))
+                        return null;
+                    var n = t.lines.find((function(t) {
+                        return e._isPlanetLine(t)
+                    }
+                    ));
+                    return n ? n.entity.id : null
+                }
+            }, {
+                key: "planetHasName",
+                value: function(e) {
+                    return e.lines[1].entity.name !== e.lines[1].entity.naturalId
+                }
+            }, {
+                key: "isOrbitAddress",
+                value: function(t) {
+                    return !(!e.isAddress(t) || "ORBIT" !== t.lines[t.lines.length - 1].type)
+                }
+            }, {
+                key: "orbit",
+                value: function(t) {
+                    if (!e.isOrbitAddress(t))
+                        return null;
+                    var n = t.lines.find((function(e) {
+                        return "ORBIT" === e.type
+                    }
+                    ));
+                    return n ? n.orbit : null
+                }
+            }, {
+                key: "isStationAddress",
+                value: function(t) {
+                    return !(!e.isAddress(t) || "STATION" !== t.lines[t.lines.length - 1].type)
+                }
+            }, {
+                key: "entity",
+                value: function(t) {
+                    return e.isAddress(t) ? t.lines.filter((function(e) {
+                        return null !== e.entity
+                    }
+                    )).reduce((function(e, t) {
+                        return t
+                    }
+                    )).entity : null
+                }
+            }, {
+                key: "entityId",
+                value: function(e) {
+                    var t = this.entity(e);
+                    return null === t ? null : t.id
+                }
+            }, {
+                key: "equal",
+                value: function(t, n) {
+                    return !(null === t || null === n || !e.isAddress(t) || !e.isAddress(n)) && t.lines.length === n.lines.length && t.lines.every((function(e, t) {
+                        var r = n.lines[t];
+                        return e.type === r.type && ("ORBIT" === e.type ? e.orbit.semiMajorAxis === r.orbit.semiMajorAxis && e.orbit.eccentricity === r.orbit.eccentricity && e.orbit.inclination === r.orbit.inclination && e.orbit.rightAscension === r.orbit.rightAscension && e.orbit.periapsis === r.orbit.periapsis : e.entity && e.entity.id && r.entity && e.entity.id === r.entity.id)
+                    }
+                    ))
+                }
+            }, {
+                key: "equalSystem",
+                value: function(t, n) {
+                    return !(null === t || null === n || !e.isAddress(t) || !e.isAddress(n)) && t.lines[0].entity.id === n.lines[0].entity.id
+                }
+            }, {
+                key: "_namePlanet",
+                value: function(e) {
+                    var t = e.lines[1].entity;
+                    return t.name ? t.name : t.naturalId
+                }
+            }, {
+                key: "_nameSystem",
+                value: function(e) {
+                    var t = e.lines[0].entity;
+                    return t.name ? t.name : t.naturalId
+                }
+            }, {
+                key: "_nameSystemAndPlanet",
+                value: function(e) {
+                    var t, n = !(arguments.length > 1 && void 0 !== arguments[1]) || arguments[1], r = e.lines[0].entity, o = !!r.name;
+                    t = o ? r.name : r.naturalId;
+                    var i = e.lines[1].entity
+                      , a = i.name !== i.naturalId;
+                    return n ? o ? o && !a ? "".concat(t, " ").concat(i.naturalId.slice(-1)) : "".concat(t, " - ").concat(i.name) : i.name : o ? o && !a ? "".concat(t, " ").concat(i.naturalId.slice(-1), " (").concat(i.naturalId, ")") : "".concat(t, " - ").concat(i.name, " (").concat(i.naturalId, ")") : i.name
+                }
+            }, {
+                key: "_nameStation",
+                value: function(t, n) {
+                    var r = t.lines[t.lines.length - 1].entity
+                      , o = r.name ? r.name : r.naturalId;
+                    return n ? o : o + " (" + e.nameShort({
+                        lines: t.lines.slice(0, -1)
+                    }) + ")"
+                }
+            }, {
+                key: "nameLong",
+                value: function(t) {
+                    return e.isAddress(t) ? e._name(t, !1) : "--"
+                }
+            }, {
+                key: "nameShort",
+                value: function(t) {
+                    return e.isAddress(t) ? e._name(t, !0) : "--"
+                }
+            }, {
+                key: "_name",
+                value: function(t, n) {
+                    return e.isSystemAddress(t) ? e._nameSystem(t) : e.isPlanetAddress(t) ? e._nameSystemAndPlanet(t, n) : e.isOrbitAddress(t) ? e.containsPlanetAddress(t) ? e._nameSystemAndPlanet(t, n) : e._nameSystem(t) : e.isStationAddress(t) ? e._nameStation(t, n) : void console.error("address type not supported " + t)
+                }
+            }, {
+                key: "lastName",
+                value: function(t) {
+                    var n = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : "--";
+                    return e.isAddress(t) ? rs.List(t.lines).filter((function(e) {
+                        return !!e.entity
+                    }
+                    )).map((function(e) {
+                        return e.entity.name
+                    }
+                    )).last(n) : n
+                }
+            }, {
+                key: "isAddress",
+                value: function(e) {
+                    return !!(e && e.lines && e.lines.length > 0)
+                }
+            }, {
+                key: "serialize",
+                value: function(t) {
+                    if (!e.isAddress(t))
+                        return null;
+                    var n = "";
+                    return t.lines.forEach((function(e, t) {
+                        t > 0 && (n += "|"),
+                        e.entity ? ("PLANET" === e.type ? n += "PLA," : "STATION" === e.type && (n += "STA,"),
+                        n += e.entity.id) : console.error("address component not supported yet " + e)
+                    }
+                    )),
+                    n
+                }
+            }, {
+                key: "orderIdentifier",
+                value: function(t) {
+                    if (!t)
+                        return "000";
+                    var n = e.isStationAddress(t) ? "000" : ""
+                      , r = "";
+                    return t.lines.forEach((function(e) {
+                        switch (e.type) {
+                        case "PLANET":
+                        case "SYSTEM":
+                            r += function(e) {
+                                return e.entity.name !== e.entity.naturalId ? "AAA-" + e.entity.name : "ZZZ-" + e.entity.naturalId
+                            }(e);
+                            break;
+                        case "ORBIT":
+                            r += e.orbit.semiMajorAxis;
+                            break;
+                        default:
+                            r += e.entity.naturalId
+                        }
+                    }
+                    )),
+                    n + r
+                }
+            }],
+            null && BA(t.prototype, null),
+            n && BA(t, n),
+            Object.defineProperty(t, "prototype", {
+                writable: !1
+            }),
+            e
+        }()

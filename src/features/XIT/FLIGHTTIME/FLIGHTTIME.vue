@@ -12,6 +12,8 @@ import { getEntityNaturalIdFromAddress } from '@src/infrastructure/prun-api/data
 import { calculateTestFlight } from '@src/infrastructure/prun-api/ship-flight';
 import dayjs from 'dayjs';
 
+
+
 const ship = ref<string>();
 const origin = ref<string>();
 const destination = ref<string>();
