@@ -13,6 +13,12 @@ const registry = new Map<string, MessageHandler[]>();
 
 export function onAnyApiMessage(handler: MessageHandler) {
   any.push(handler);
+  return () => {
+    const index = any.indexOf(handler);
+    if (index >= 0) {
+      any.splice(index, 1);
+    }
+  };
 }
 
 export function onApiMessage(handlers: MessageHandlers) {
