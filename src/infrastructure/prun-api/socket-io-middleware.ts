@@ -9,7 +9,7 @@ export type Middleware<T> = {
 };
 
 export default function socketIOMiddleware<T>(middleware: Middleware<T>) {
-  const addEventListener = WebSocket.prototype.addEventListener;
+  const originalAddEventListener = WebSocket.prototype.addEventListener;
   window.WebSocket = new Proxy(WebSocket, {
     construct(target: typeof WebSocket, args: [string, (string | string[])?]) {
       const ws = new target(...args);
@@ -40,7 +40,36 @@ export default function socketIOMiddleware<T>(middleware: Middleware<T>) {
         },
         get(target, prop) {
           if (prop === 'addEventListener') {
-            return addEventListener.bind(target);
+            return (
+              type: string,
+              listener: EventListenerOrEventListenerObject,
+              options?: boolean | AddEventListenerOptions,
+            ) => {
+              if (type === 'message') {
+                middleware.dispatchClientMessage.value = message => {
+                  if (typeof listener === 'function') {
+                    listener(new MessageEvent('message', { data: encodeMessage(message) }));
+                  } else {
+                    listener.handleEvent(
+                      new MessageEvent('message', { data: encodeMessage(message) }),
+                    );
+                  }
+                };
+                const wrapped = (e: MessageEvent) => {
+                  const data = processMessage(e.data, middleware);
+                  const event =
+                    data === e.data ? e : new MessageEvent('message', { data });
+                  if (typeof listener === 'function') {
+                    listener(event);
+                  } else {
+                    listener.handleEvent(event);
+                  }
+                };
+                originalAddEventListener.call(target, type, wrapped, options);
+                return;
+              }
+              return originalAddEventListener.call(target, type, listener as any, options as any);
+            };
           }
           const value = Reflect.get(target, prop);
           if (typeof value === 'function') {
@@ -55,7 +84,7 @@ export default function socketIOMiddleware<T>(middleware: Middleware<T>) {
   // I don't remember what this override is for, lol. Probably some FIO compatibility issues.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   WebSocket.prototype.addEventListener = function (type: any, listener: any, options: any) {
-    return this.addEventListener(type, listener, options);
+    return originalAddEventListener.call(this, type, listener, options);
   };
 
   window.XMLHttpRequest = new Proxy(XMLHttpRequest, {
