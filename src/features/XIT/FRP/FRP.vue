@@ -6,6 +6,10 @@ import FlightroutePlans from '@src/features/XIT/FRP/FlightroutePlans.vue';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
+import { showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
+import Commands from '@src/components/forms/Commands.vue';
+import PrunButton from '@src/components/PrunButton.vue';
+import StartFlightrouteOverlay from '@src/features/XIT/FRP/StartFlightrouteOverlay.vue';
 
 const parameters = useXitParameters();
 const routeId = parameters[0];
@@ -22,6 +26,12 @@ function destinationName(id: string) {
     getEntityNameFromAddress(warehousesStore.getById(id)?.address) ??
     id
   );
+}
+
+function openStart(ev: Event) {
+  const p = plan.value;
+  if (!p) return;
+  showTileOverlay(ev, StartFlightrouteOverlay, { plan: p });
 }
 </script>
 
@@ -74,6 +84,9 @@ function destinationName(id: string) {
         </tr>
       </tbody>
     </table>
+    <Commands v-if="plan">
+      <PrunButton primary @click="openStart">Start</PrunButton>
+    </Commands>
     <div v-else>No route found.</div>
   </div>
 </template>
