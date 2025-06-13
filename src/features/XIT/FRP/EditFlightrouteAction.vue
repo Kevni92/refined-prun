@@ -35,12 +35,11 @@ const destinationOptions = computed(() => {
 });
 
 function addTransfer(ev: Event) {
-  const transfer: UserData.Transfer = { ticker: '', direction: 'IN' };
   showTileOverlay(ev, EditFlightrouteTransfer, {
-    transfer,
+    transfer: { ticker: '', direction: 'IN' },
     add: true,
     destination: action.destination,
-    onSave: () => {
+    onSave: (transfer: UserData.Transfer) => {
       if (!action.transfers) action.transfers = [];
       action.transfers.push(transfer);
     },
@@ -48,7 +47,13 @@ function addTransfer(ev: Event) {
 }
 
 function editTransfer(ev: Event, transfer: UserData.Transfer) {
-  showTileOverlay(ev, EditFlightrouteTransfer, { transfer, destination: action.destination });
+  showTileOverlay(ev, EditFlightrouteTransfer, { 
+    transfer, 
+    destination: action.destination,  
+    onSave: (updated: UserData.Transfer) => {
+      Object.assign(transfer, updated);
+    }
+  });
 }
 
 function deleteTransfer(ev: Event, transfer: UserData.Transfer) {

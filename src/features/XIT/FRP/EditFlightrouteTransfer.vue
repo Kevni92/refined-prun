@@ -7,45 +7,50 @@ import NumberInput from '@src/components/forms/NumberInput.vue';
 import { materialsStore } from '@src/infrastructure/prun-api/data/materials';
 import { getPlanetBurn } from '@src/core/burn';
 import { isDefined } from 'ts-extras';
+import MaterialIcon from '@src/components/MaterialIcon.vue';
 
 const { transfer, add, onSave, destination } = defineProps<{
   transfer: UserData.Transfer;
   add?: boolean;
-  onSave?: () => void;
+  onSave?: (transfer: UserData.Transfer) => void;
   destination: string;
 }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
 
+const localTransfer = reactive({ ...transfer });
 const tickerOptions = computed(() => materialsStore.all.value?.map(m => m.ticker) ?? []);
 
 const produced = computed(() => {
   const burn = getPlanetBurn(destination)?.burn;
-  if (!burn) return [] as PrunApi.Material[];
+  if (!burn) return [] as {ticker: PrunApi.Material, amount: number}[];
   return Object.keys(burn)
     .filter(t => burn[t].output > 0)
-    .map(t => materialsStore.getByTicker(t))
-    .filter(isDefined);
+    .map(t => { return {ticker: materialsStore.getByTicker(t)!, amount: burn[t].output }; });
 });
 
 const directions: UserData.Direction[] = ['IN', 'OUT'];
 
-function selectDirection(dir: UserData.Direction) {
-  transfer.direction = dir;
+function selectDirection (dir: UserData.Direction) {
+  localTransfer.direction = dir;
 }
 
 function save() {
-  onSave?.();
+  onSave?.(localTransfer);
   emit('close');
 }
+
+const onMaterialClick = (material: PrunApi.Material) => {
+  transfer.ticker = material.ticker;
+};
 </script>
 
 <template>
   <div :class="C.DraftConditionEditor.form">
-    <SectionHeader>{{ add ? 'Add' : 'Edit' }} Transfer</SectionHeader>
+    <SectionHeader>{{ add ? 'Add' : 'Edit' }} Transfer in {{ destination }}</SectionHeader>
     <form>
       <Active label="Ticker">
         <div>
-          <input list="tickers" v-model="transfer.ticker" />
+          <input list="tickers" v-model="localTransfer.ticker" />
           <datalist id="tickers">
             <option v-for="t in tickerOptions" :key="t" :value="t" />
           </datalist>
@@ -55,19 +60,21 @@ function save() {
         <div :class="$style.materials">
           <MaterialIcon
             v-for="material in produced"
-            :key="material.ticker"
-            size="inline-table"
-            :ticker="material.ticker" />
+            :key="material.ticker.ticker"
+            :amount="material.amount"
+            :onClick="() => onMaterialClick(material.ticker)"
+            size="medium"
+            :ticker="material.ticker.ticker" />
         </div>
       </Active>
       <Active label="Amount">
-        <NumberInput v-model="transfer.amount" :min="0" :decimalPlaces="0" />
+        <NumberInput v-model="localTransfer.amount" :min="0" :decimalPlaces="0" />
       </Active>
       <Active label="Direction">
         <PrunButton
           v-for="dir in directions"
           :key="dir"
-          :primary="transfer.direction === dir"
+          :primary="localTransfer.direction === dir"
           inline
           @click="selectDirection(dir)">
           {{ dir }}

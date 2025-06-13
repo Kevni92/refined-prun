@@ -10,11 +10,13 @@ const {
   size = 'large',
   ticker,
   warning,
+  onClick
 } = defineProps<{
   amount?: number;
   size?: ColoredIconSize;
   ticker: string;
   warning?: boolean;
+  onClick?: () => void;
 }>();
 
 const $style = useCssModule();
@@ -45,7 +47,7 @@ const indicatorClasses = [
   },
 ];
 
-const onClick = () => showBuffer(`MAT ${ticker.toUpperCase()}`);
+const defaultOnClick = () => showBuffer(`MAT ${ticker.toUpperCase()}`);
 </script>
 
 <template>
@@ -54,7 +56,7 @@ const onClick = () => showBuffer(`MAT ${ticker.toUpperCase()}`);
     <div
       v-if="amountText !== undefined"
       :class="C.MaterialIcon.indicatorContainer"
-      @click="onClick">
+      @click="onClick ? onClick : defaultOnClick">
       <div :class="indicatorClasses">{{ amountText }}</div>
     </div>
   </div>
