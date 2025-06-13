@@ -137,6 +137,7 @@ declare namespace UserData {
 
   interface FlightroutePlan {
     id: string;
+    name: string;
     actions: FlightrouteAction[];
   }
 

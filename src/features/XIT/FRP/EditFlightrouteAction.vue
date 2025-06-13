@@ -3,15 +3,31 @@ import SectionHeader from '@src/components/SectionHeader.vue';
 import Commands from '@src/components/forms/Commands.vue';
 import PrunButton from '@src/components/PrunButton.vue';
 import Active from '@src/components/forms/Active.vue';
-import TextInput from '@src/components/forms/TextInput.vue';
 import NumberInput from '@src/components/forms/NumberInput.vue';
 import SelectInput from '@src/components/forms/SelectInput.vue';
+import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
+import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { showTileOverlay, showConfirmationOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import removeArrayElement from '@src/utils/remove-array-element';
 import EditFlightrouteTransfer from '@src/features/XIT/FRP/EditFlightrouteTransfer.vue';
 
 const { action, add, onSave } = defineProps<{ action: UserData.FlightrouteAction; add?: boolean; onSave?: () => void }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
+
+const destinationOptions = computed(() => {
+  const sites =
+    sitesStore.all.value?.map(site => ({
+      label: getEntityNameFromAddress(site.address) ?? site.siteId,
+      value: site.siteId,
+    })) ?? [];
+  const warehouses =
+    warehousesStore.all.value?.map(w => ({
+      label: getEntityNameFromAddress(w.address) ?? w.storeId,
+      value: w.storeId,
+    })) ?? [];
+  return [...sites, ...warehouses];
+});
 
 function addTransfer(ev: Event) {
   const transfer: UserData.Transfer = { ticker: '', direction: 'IN' };
@@ -47,7 +63,7 @@ function save() {
     <SectionHeader>{{ add ? 'Add' : 'Edit' }} Action</SectionHeader>
     <form>
       <Active label="Destination">
-        <TextInput v-model="action.destination" />
+        <SelectInput v-model="action.destination" :options="destinationOptions" />
       </Active>
       <Active label="Dump Cargo">
         <input type="checkbox" v-model="action.dumpCargo" />

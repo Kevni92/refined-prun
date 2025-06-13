@@ -12,7 +12,7 @@ import PrunLink from '@src/components/PrunLink.vue';
 import EditFlightroutePlan from '@src/features/XIT/FRP/EditFlightroutePlan.vue';
 
 function createNew(ev: Event) {
-  const plan: UserData.FlightroutePlan = { id: createId(), actions: [] };
+  const plan: UserData.FlightroutePlan = { id: createId(), name: '', actions: [] };
   showTileOverlay(ev, EditFlightroutePlan, {
     plan,
     add: true,
@@ -50,7 +50,7 @@ const draggableOptions = {
   <table>
     <thead>
       <tr>
-        <th>Id</th>
+        <th>Name</th>
         <th>Actions</th>
         <th />
       </tr>
@@ -62,7 +62,7 @@ const draggableOptions = {
         <td>
           <span :class="[grip.grip, fa.solid, $style.grip]">{{ '\uf58e' }}</span>
           <PrunLink inline :command="`XIT FRP ${plan.id.substring(0,8)}`">
-            {{ plan.id.substring(0, 8) }}
+            {{ plan.name || plan.id.substring(0, 8) }}
           </PrunLink>
         </td>
         <td>{{ plan.actions.length }}</td>
