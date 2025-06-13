@@ -26,16 +26,18 @@ function destinationName(id: string) {
 }
 
 function addAction(ev: Event) {
-  const action: UserData.FlightrouteAction = { destination: '', transfers: [] };
   showTileOverlay(ev, EditFlightrouteAction, {
-    action,
+    action: { destination: '', transfers: [] },
     add: true,
-    onSave: () => plan.actions.push(action),
+    onSave: updated => plan.actions.push(updated),
   });
 }
 
 function editAction(ev: Event, action: UserData.FlightrouteAction) {
-  showTileOverlay(ev, EditFlightrouteAction, { action });
+  showTileOverlay(ev, EditFlightrouteAction, {
+    action,
+    onSave: updated => Object.assign(action, updated),
+  });
 }
 
 function deleteAction(ev: Event, action: UserData.FlightrouteAction) {
