@@ -151,5 +151,6 @@ declare namespace UserData {
   interface FlightrouteStore {
     active: ActiveFlightroute[];
     finished: ActiveFlightroute[];
+    plans: FlightroutePlan[];
   }
 }
