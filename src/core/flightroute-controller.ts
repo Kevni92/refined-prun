@@ -5,6 +5,7 @@ import {
   getActiveById,
   getActiveByShipId,
   removeActive,
+  getActivePlans
 } from '@src/store/flightroutes';
 import { flightsStore } from '@src/infrastructure/prun-api/data/flights';
 import { watch } from 'vue';
@@ -17,8 +18,9 @@ export class FlightplanController {
   finished: UserData.ActiveFlightroute[] = [];
   active: UserData.ActiveFlightroute[] = [];
 
-  constructor() {
-    console.log('FlightplanController initialized');
+  public init ()
+  {
+    console.log('FlightplanController initialized', getActivePlans());
     watch(
       flightsStore.entities,
       () => {
@@ -31,11 +33,10 @@ export class FlightplanController {
   private onFlightsChanged() {
     const flights = flightsStore.all.value;
     if (!flights) return;
+
     for (const flight of flights) {
       const route = getActiveByShipId(flight.shipId);
-      if (route) {
-        this.handleFlightUpdate(route, flight);
-      }
+      if (route) this.handleFlightUpdate(route, flight);
     }
   }
 
@@ -79,5 +80,6 @@ export class FlightplanController {
     dummy('complete action', id, route.state);
   }
 }
+
 
 export const flightplanController = new FlightplanController();

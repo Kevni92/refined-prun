@@ -16,6 +16,13 @@ export function getPlan(id: string) {
   return userData.flightRoutes.plans.find(p => p.id === id);
 }
 
+export function getPlans () {
+  return userData.flightRoutes.plans;
+}
+export function getActivePlans () {
+  return userData.flightRoutes;
+}
+
 export function finishRoute(id: string) {
   const idx = userData.flightRoutes.active.findIndex(r => r.id === id);
   if (idx !== -1) {

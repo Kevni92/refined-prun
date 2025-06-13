@@ -1,7 +1,7 @@
 import { initializeApi } from '@src/infrastructure/prun-api';
 import { initializeUI } from '@src/infrastructure/prun-ui';
 import { initializeUserData } from '@src/store';
-import '@src/core/flightroute-controller';
+import { flightplanController } from '@src/core/flightroute-controller';
 import PmmgMigrationGuide from '@src/components/PmmgMigrationGuide.vue';
 
 async function main() {
@@ -17,6 +17,7 @@ async function main() {
   initializeUserData();
   features.init();
   xit.init();
+  flightplanController.init();
 }
 
 void main();
