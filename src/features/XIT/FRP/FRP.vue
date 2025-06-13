@@ -10,6 +10,7 @@ import { showTileOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import Commands from '@src/components/forms/Commands.vue';
 import PrunButton from '@src/components/PrunButton.vue';
 import StartFlightrouteOverlay from '@src/features/XIT/FRP/StartFlightrouteOverlay.vue';
+import TestTransferOverlay from '@src/features/XIT/FRP/TestTransferOverlay.vue';
 
 const parameters = useXitParameters();
 const routeId = parameters[0];
@@ -33,6 +34,10 @@ function openStart(ev: Event) {
   if (!p) return;
   showTileOverlay(ev, StartFlightrouteOverlay, { plan: p });
 }
+
+function testTransfers(ev: Event, action: UserData.FlightrouteAction) {
+  showTileOverlay(ev, TestTransferOverlay, { action });
+}
 </script>
 
 <template>
@@ -44,6 +49,7 @@ function openStart(ev: Event) {
           <th>#</th>
           <th>Destination</th>
           <th>Transfers</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -60,6 +66,9 @@ function openStart(ev: Event) {
               {{ t.direction }} {{ t.amount ?? 'ALL' }} {{ t.ticker }}
             </div>
           </td>
+          <td>
+            <PrunButton dark inline @click="testTransfers($event, action)">test</PrunButton>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -69,6 +78,7 @@ function openStart(ev: Event) {
           <th>#</th>
           <th>Destination</th>
           <th>Transfers</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -80,6 +90,9 @@ function openStart(ev: Event) {
             <div v-for="t in action.transfers" :key="t.ticker + t.direction">
               {{ t.direction }} {{ t.amount ?? 'ALL' }} {{ t.ticker }}
             </div>
+          </td>
+          <td>
+            <PrunButton dark inline @click="testTransfers($event, action)">test</PrunButton>
           </td>
         </tr>
       </tbody>
