@@ -120,4 +120,36 @@ declare namespace UserData {
   }
 
   type ProductionAssignments = Record<string, Record<string, ProductionAssignment[]>>;
+
+  type Direction = 'IN' | 'OUT';
+
+  interface Transfer {
+    ticker: string;
+    amount?: number;
+    direction: Direction;
+  }
+
+  interface FlightrouteAction {
+    destination: string;
+    transfers?: Transfer[];
+    dumpCargo?: boolean;
+  }
+
+  interface FlightroutePlan {
+    id: string;
+    actions: FlightrouteAction[];
+  }
+
+  interface ActiveFlightroute {
+    id: string;
+    shipId: string;
+    plan: FlightroutePlan;
+    state: number;
+    history: Record<number, number>;
+  }
+
+  interface FlightrouteStore {
+    active: ActiveFlightroute[];
+    finished: ActiveFlightroute[];
+  }
 }

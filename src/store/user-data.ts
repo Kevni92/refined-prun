@@ -64,6 +64,10 @@ export const initialUserData = deepFreeze({
   },
   commandLists: [] as UserData.CommandList[],
   productionAssignments: {} as Record<string, Record<string, UserData.ProductionAssignment[]>>,
+  flightRoutes: {
+    active: [],
+    finished: [],
+  } as UserData.FlightrouteStore,
   favorites: {
     ticker: []
   } as UserData.Favorites
