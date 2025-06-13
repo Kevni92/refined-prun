@@ -1,5 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import { addActive, finishRoute, getActiveById, removeActive } from '@src/store/flightroutes';
+import {
+  addActive,
+  finishRoute,
+  getActiveById,
+  getActiveByShipId,
+  removeActive,
+} from '@src/store/flightroutes';
+import { flightsStore } from '@src/infrastructure/prun-api/data/flights';
+import { watch } from 'vue';
 
 export function dummy(action: string, ...args: unknown[]) {
   console.log(`[FRP] ${action}`, ...args);
@@ -11,6 +19,29 @@ export class FlightplanController {
 
   constructor() {
     console.log('FlightplanController initialized');
+    watch(
+      flightsStore.entities,
+      () => {
+        this.onFlightsChanged();
+      },
+      { deep: true },
+    );
+  }
+
+  private onFlightsChanged() {
+    const flights = flightsStore.all.value;
+    if (!flights) return;
+    for (const flight of flights) {
+      const route = getActiveByShipId(flight.shipId);
+      if (route) {
+        this.handleFlightUpdate(route, flight);
+      }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private handleFlightUpdate(route: UserData.ActiveFlightroute, flight: PrunApi.Flight) {
+    dummy('flight update', route.shipId, flight.currentSegmentIndex);
   }
 
   startPlan(shipId: string, plan: UserData.FlightroutePlan) {
@@ -48,3 +79,5 @@ export class FlightplanController {
     dummy('complete action', id, route.state);
   }
 }
+
+export const flightplanController = new FlightplanController();

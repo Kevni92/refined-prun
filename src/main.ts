@@ -1,6 +1,7 @@
 import { initializeApi } from '@src/infrastructure/prun-api';
 import { initializeUI } from '@src/infrastructure/prun-ui';
 import { initializeUserData } from '@src/store';
+import '@src/core/flightroute-controller';
 import PmmgMigrationGuide from '@src/components/PmmgMigrationGuide.vue';
 
 async function main() {
