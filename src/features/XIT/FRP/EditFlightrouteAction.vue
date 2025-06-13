@@ -11,8 +11,13 @@ import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { showTileOverlay, showConfirmationOverlay } from '@src/infrastructure/prun-ui/tile-overlay';
 import removeArrayElement from '@src/utils/remove-array-element';
 import EditFlightrouteTransfer from '@src/features/XIT/FRP/EditFlightrouteTransfer.vue';
+import MaterialIcon from '@src/components/MaterialIcon.vue';
 
-const { action, add, onSave } = defineProps<{ action: UserData.FlightrouteAction; add?: boolean; onSave?: () => void }>();
+const { action, add, onSave } = defineProps<{
+  action: UserData.FlightrouteAction;
+  add?: boolean;
+  onSave?: () => void;
+}>();
 const emit = defineEmits<{ (e: 'close'): void }>();
 
 const destinationOptions = computed(() => {
@@ -34,6 +39,7 @@ function addTransfer(ev: Event) {
   showTileOverlay(ev, EditFlightrouteTransfer, {
     transfer,
     add: true,
+    destination: action.destination,
     onSave: () => {
       if (!action.transfers) action.transfers = [];
       action.transfers.push(transfer);
@@ -42,7 +48,7 @@ function addTransfer(ev: Event) {
 }
 
 function editTransfer(ev: Event, transfer: UserData.Transfer) {
-  showTileOverlay(ev, EditFlightrouteTransfer, { transfer });
+  showTileOverlay(ev, EditFlightrouteTransfer, { transfer, destination: action.destination });
 }
 
 function deleteTransfer(ev: Event, transfer: UserData.Transfer) {
@@ -72,6 +78,7 @@ function save() {
       <table>
         <thead>
           <tr>
+            <th></th>
             <th>Ticker</th>
             <th>Amount</th>
             <th>Direction</th>
@@ -85,6 +92,9 @@ function save() {
         </tbody>
         <tbody v-else>
           <tr v-for="(t, i) in action.transfers" :key="i">
+            <td class="$style.materialCell">
+              <MaterialIcon size="inline-table" :ticker="t.ticker" />
+            </td>
             <td>{{ t.ticker }}</td>
             <td>{{ t.amount ?? 'ALL' }}</td>
             <td>{{ t.direction }}</td>
@@ -108,5 +118,10 @@ function save() {
 <style module>
 .empty {
   text-align: center;
+}
+
+.materialCell {
+  width: 0;
+  padding: 0;
 }
 </style>
