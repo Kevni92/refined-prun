@@ -1,9 +1,10 @@
 import { changeInputValue, clickElement, focusElement } from '@src/util';
 import { materialsStore } from '@src/infrastructure/prun-api/data/materials';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
-import { requestTile } from '@src/features/XIT/ACT/runner/tile-allocator';
 import { watchWhile } from '@src/utils/watch';
 import { isDefined } from 'ts-extras';
+import { closeWhenDone, showBuffer, ShowBufferOptions } from '@src/infrastructure/prun-ui/buffers';
+import { sleep } from '@src/utils/sleep';
 
 export interface TransferMaterialOptions {
   from: string;
@@ -12,7 +13,23 @@ export interface TransferMaterialOptions {
   amount: number;
 }
 
-export async function transferMaterialsViaMtra(options: TransferMaterialOptions) {
+export async function dumpCargo (shipRegistration: string) 
+{
+  const tile = await showBuffer(
+    `SHPI ${shipRegistration}`,
+  );
+  if (!tile) return;
+  await sleep(0);
+
+  const unloadButton = await $(tile, C.Button.btn);
+
+  await clickElement(unloadButton);
+  await waitActionFeedback(tile);
+  await closeWhenDone(tile);
+}
+
+export async function transferMaterialsViaMtra(options: TransferMaterialOptions) 
+{
   const { from, to, ticker: t, amount } = options;
   const ticker = t.toUpperCase();
   const fromStore = storagesStore.getById(from);
@@ -26,12 +43,13 @@ export async function transferMaterialsViaMtra(options: TransferMaterialOptions)
     throw new Error(`Unknown material ${ticker}`);
   }
 
-  const tile = await requestTile(
+  const tile = await showBuffer(
     `MTRA from-${fromStore.id.substring(0, 8)} to-${toStore.id.substring(0, 8)}`,
   );
   if (!tile) return;
+  await sleep(0);
 
-  const container = await $(tile.anchor, C.MaterialSelector.container);
+  const container = await $(tile, C.MaterialSelector.container);
   const input = await $(container, 'input');
   const suggestionsContainer = await $(container, C.MaterialSelector.suggestionsContainer);
   focusElement(input);
@@ -53,18 +71,18 @@ export async function transferMaterialsViaMtra(options: TransferMaterialOptions)
   await clickElement(match);
   suggestionsContainer.style.display = '';
 
-  const sliderNumbers = _$$(tile.anchor, 'rc-slider-mark-text').map(x =>
+  const sliderNumbers = _$$(tile, 'rc-slider-mark-text').map(x =>
     Number(x.textContent ?? 0),
   );
   const maxAmount = Math.max(...sliderNumbers);
-  const allInputs = _$$<HTMLInputElement>(tile.anchor, 'input');
+  const allInputs = _$$(tile, 'input');
   const amountInput = allInputs[1];
   if (!amountInput) {
     throw new Error('Missing amount input');
   }
   changeInputValue(amountInput, Math.min(amount, maxAmount).toString());
 
-  const transferButton = await $(tile.anchor, C.Button.btn);
+  const transferButton = await $(tile, C.Button.btn);
 
   const destinationAmount = computed(() => {
     const store = storagesStore.getById(toStore.id);
@@ -80,10 +98,11 @@ export async function transferMaterialsViaMtra(options: TransferMaterialOptions)
   await clickElement(transferButton);
   await waitActionFeedback(tile);
   await watchWhile(() => destinationAmount.value === currentAmount);
+  await closeWhenDone(tile);
 }
 
-async function waitActionFeedback(tile: PrunTile) {
-  const overlay = await $(tile.frame, C.ActionFeedback.overlay);
+async function waitActionFeedback(tile: HTMLElement) {
+  const overlay = await $(tile, C.ActionFeedback.overlay);
   await waitActionProgress(overlay);
   if (overlay.classList.contains(C.ActionConfirmationOverlay.container)) {
     const confirm = _$$(overlay, C.Button.btn)[1];
