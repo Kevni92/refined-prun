@@ -1,0 +1,79 @@
+Flyrouteplanner (FRP)
+
+Ziel:
+Definieren Flugrouten zwischen beliebigen Zielen (Sites / Stations) bei deren
+Ankunft schiffrelevante Aktionen (MTRA) ausgeführt werden können.
+
+Umsetzung:
+- Neuer Buffer XIT FRP
+    - Tabellenansicht der Aktionen
+    - Eine Aktion ist
+        - Eine Destination 
+        - Liste von zu transferierenden Materialien
+        - Optionen:
+            - Auftanken falls möglich
+            - Reparieren falls möglich und wenn unter X Prozent
+    - Aktionen sind von Schiffen unabhängig
+
+- Wenn ein Schiff gestartet wird (Bugger SFC), kann statt einer Destination auch ein Flugplan ausgewählt werden
+
+Definition Aktionen
+- Jede Aktion hat eine fortlaufende Nr.
+- Es muss einen Store (flightroute-store) geben, in dem die aktiven Flugpläne mit ihrem Status gespeichert sind (user-data)
+- Flugpläne können am Schiff jederzeit abgebrochen werden (lösche aktiven Plan aus Store)
+- Wenn ein Schiff einen Flugplan startet wird dieser Flugplan im Store angelegt und bekommt eine eineutige ID
+- Es soll einen Buffer mit dem aktuellen Status des Flugplans geben (XIT FRP {ID des Flugplans aus dem Store})
+    - Tabellarisch die Aktionen anzeigen, jede Aktion ist eine Row mit Spalte [Nr., Destination, Material, Direction (Auf Schiff / von Schiff), Amount]
+    - Bereits erledigte Aktionen sind mit einer Transparenz zu versehen, die aktuelle Aktion ist grün im Hintergrund
+    - noch stattfindende Aktionen können auzs einem laufenden Flugplan entfernt bzw. übersprungen werden
+
+class FlightroutePlan: (Definition eines Flugplans)
+    id: UUID
+    actions: Action[]
+
+class Action: (Definition einer Aktion)
+    destination: Site|Station (todo)
+    transfers?: Transfer[]
+    transferCargo?: Direction (optional, wenn gegeben alles entladen / laden)
+
+class Transfer:
+    ticker: String
+    amount?: Number (optional, wenn null soll alles transferiert werden)
+    direction: Direction
+
+enum Direction:
+    IN
+    OUT
+
+class ActiveFlightroute: (Aktiver Flugplan)
+    id: String (uuid)
+    shipId: String
+    plan: FlightroutePlan
+    state: Number (index von actions)
+    history: Map<Number, Date> (Number = index von actions, Date Ausführungszeit)
+
+class FlightplanController
+    finished: ActiveFlightroute[] (abgeschlossene Flugpläne)
+    active: ActiveFlightroute[] (aktive Flugpläne)
+
+
+Ausführung des Flugplans:
+    - Beim Initilisieren der Anwendung soll ein FlightplanController Objekt erzeugt 
+    - Der FlightplanController registriert alle Raumschiffe und hört auf Änderungen 
+        - '@src/infrastructure/prun-api/data/flights'
+    - Im Controller sind alle aktiven Flightplans gespeichert.
+    - Wenn der Controller mitgeteilt bekommt, dass der FLugstatus eines Raumschiffes sich
+      geändert hat, wird geprüft, ob das Raumschiff einen aktiven Flightplan (active -> nach shipId suchen) hat.
+        - Wenn JA geht es in die Flightplan-Ausführung
+
+    Flightplan-Ausführung:
+        - Aktive Aktion gegen Status des Raumschiffs prüfen
+            - Ist das Raumschiff bei der Destination der Aktion?
+                - Wenn NEIN: Warten auf die nächste Flugstatus Änderung
+                - Wenn JA:
+                    - Führe Aktionen aus
+                - Anschließend Starte Flug zur Destination der nächsten Aktion
+                - Wenn Flug gestartet ist, schreibe Date mit ausgeführt Aktion-Index in ActiveFlightroute.history
+                - Prüfe ob es weiter Aktion gibt:
+                    - Wenn JA: Setze state auf nächsten Index
+                - Wenn nein verschiebe ActiveFlightroute in history-Array im Controller (ein Array mit abgeschlossenen)
