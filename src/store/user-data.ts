@@ -67,6 +67,7 @@ export const initialUserData = deepFreeze({
   flightRoutes: {
     active: [],
     finished: [],
+    plans: [],
   } as UserData.FlightrouteStore,
   favorites: {
     ticker: []

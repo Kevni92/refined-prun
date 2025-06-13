@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { userData } from '@src/store/user-data';
+import { isEmpty } from 'ts-extras';
+import FlightroutePlans from '@src/features/XIT/FRP/FlightroutePlans.vue';
 
 const parameters = useXitParameters();
 const routeId = parameters[0];
@@ -9,11 +11,13 @@ const route = computed(() => {
   if (byActive) return byActive;
   return userData.flightRoutes.finished.find(r => r.id.startsWith(routeId));
 });
+const plan = computed(() => userData.flightRoutes.plans.find(p => p.id.startsWith(routeId)));
 </script>
 
 <template>
   <div>
-    <table v-if="route">
+    <FlightroutePlans v-if="isEmpty(parameters)" />
+    <table v-else-if="route">
       <thead>
         <tr>
           <th>#</th>
@@ -27,6 +31,27 @@ const route = computed(() => {
           :key="index"
           :class="{ current: index === route.state, done: index < route.state }"
         >
+          <td>{{ index + 1 }}</td>
+          <td>{{ action.destination }}</td>
+          <td>
+            <div v-if="action.dumpCargo">Dump Cargo</div>
+            <div v-for="t in action.transfers" :key="t.ticker + t.direction">
+              {{ t.direction }} {{ t.amount ?? 'ALL' }} {{ t.ticker }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <table v-else-if="plan">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Destination</th>
+          <th>Transfers</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(action, index) in plan.actions" :key="index">
           <td>{{ index + 1 }}</td>
           <td>{{ action.destination }}</td>
           <td>
