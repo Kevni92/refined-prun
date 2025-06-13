@@ -40,7 +40,7 @@ function save() {
 }
 
 const onMaterialClick = (material: PrunApi.Material) => {
-  transfer.ticker = material.ticker;
+  localTransfer.ticker = material.ticker;
 };
 </script>
 

@@ -17,9 +17,15 @@ import { reactive } from 'vue';
 const props = defineProps<{
   action: UserData.FlightrouteAction;
   add?: boolean;
-  onSave?: () => void;
+  onSave?: (action: UserData.FlightrouteAction) => void;
 }>();
-const action = reactive(props.action);
+const action = reactive({
+  destination: props.action.destination,
+  dumpCargo: props.action.dumpCargo,
+  transfers: props.action.transfers
+    ? props.action.transfers.map(t => ({ ...t }))
+    : [],
+});
 const { add, onSave } = props;
 const emit = defineEmits<{ (e: 'close'): void }>();
 
@@ -67,7 +73,7 @@ function deleteTransfer(ev: Event, transfer: UserData.Transfer) {
 }
 
 function save() {
-  onSave?.();
+  onSave?.(action);
   emit('close');
 }
 </script>
