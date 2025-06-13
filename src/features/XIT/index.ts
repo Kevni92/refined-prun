@@ -26,4 +26,5 @@ import './START';
 import './TODO/TODO';
 import './WEB/WEB';
 import './CXORDER/CXORDER';
+import './FRP/FRP';
 import './xit-commands';
