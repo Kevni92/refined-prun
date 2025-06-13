@@ -34,7 +34,7 @@ class FlightroutePlan: (Definition eines Flugplans)
 class Action: (Definition einer Aktion)
     destination: Site|Station (todo)
     transfers?: Transfer[]
-    transferCargo?: Direction (optional, wenn gegeben alles entladen / laden)
+    dumpCargo: Boolean (default false)
 
 class Transfer:
     ticker: String
@@ -72,8 +72,16 @@ Ausführung des Flugplans:
                 - Wenn NEIN: Warten auf die nächste Flugstatus Änderung
                 - Wenn JA:
                     - Führe Aktionen aus
-                - Anschließend Starte Flug zur Destination der nächsten Aktion
+                        - Wenn Action.dumpCargo = true:
+                            - Öffne Cargo und klick Button zum entladen aller Materialien (DUMMY)
+                        - Wenn Action.transfers not NULL:
+                            - Iteriere Action.transfers und führe jeden Transfer aus (DUMMY)
+                                - 
+                - Anschließend Starte Flug zur Destination der nächsten Aktion (DUMMY)
                 - Wenn Flug gestartet ist, schreibe Date mit ausgeführt Aktion-Index in ActiveFlightroute.history
                 - Prüfe ob es weiter Aktion gibt:
                     - Wenn JA: Setze state auf nächsten Index
                 - Wenn nein verschiebe ActiveFlightroute in history-Array im Controller (ein Array mit abgeschlossenen)
+
+
+ACHTUNG: Mit DUMMY markierte Befehle sollen noch nicht umgesetzt werden, sondern durch eine DUMMY funktion die lediglich die Aktion per console.log ausgibt
