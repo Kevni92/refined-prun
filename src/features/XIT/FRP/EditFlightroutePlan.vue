@@ -14,7 +14,9 @@ import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addr
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 
-const { plan, add, onSave } = defineProps<{ plan: UserData.FlightroutePlan; add?: boolean; onSave?: () => void }>();
+const props = defineProps<{ plan: UserData.FlightroutePlan; add?: boolean; onSave?: () => void }>();
+const plan = reactive(props.plan);
+const { add, onSave } = props;
 const emit = defineEmits<{ (e: 'close'): void }>();
 
 function destinationName(id: string) {
