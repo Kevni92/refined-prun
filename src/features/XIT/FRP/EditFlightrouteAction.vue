@@ -12,12 +12,15 @@ import { showTileOverlay, showConfirmationOverlay } from '@src/infrastructure/pr
 import removeArrayElement from '@src/utils/remove-array-element';
 import EditFlightrouteTransfer from '@src/features/XIT/FRP/EditFlightrouteTransfer.vue';
 import MaterialIcon from '@src/components/MaterialIcon.vue';
+import { reactive } from 'vue';
 
-const { action, add, onSave } = defineProps<{
+const props = defineProps<{
   action: UserData.FlightrouteAction;
   add?: boolean;
   onSave?: () => void;
 }>();
+const action = reactive(props.action);
+const { add, onSave } = props;
 const emit = defineEmits<{ (e: 'close'): void }>();
 
 const destinationOptions = computed(() => {
