@@ -66,6 +66,7 @@ import './rprun-version-label';
 import './screen-tab-bar/screen-tab-bar';
 import './search-auto-focus';
 import './sfc-flight-eta';
+import './sfc-add-exports-to-inventory';
 import './shipment-item-detail';
 import './shipping-per-unit-price/shipping-per-unit-price';
 import './sidebar-contracts-details/sidebar-contracts-details';

@@ -18,6 +18,21 @@ export function getAssignments(siteId: string): SiteAssignments {
   return ensureSite(siteId);
 }
 
+export function getAssignmentsTo (from: string, to: string): any {
+  let fromSite = ensureSite(from);
+
+  let result = new Map<string, number>();
+
+  for (const [ticker, assignments] of Object.entries(fromSite)) {
+    const match = assignments.find(a => a.siteId === to);
+    if (match) {
+      result.set(ticker, match.amount);
+    }
+  }
+
+  return result;
+}
+
 export function addAssignment(from: string, ticker: string, to: string, amount: number) {
   const src = ensureSite(from);
   (src[ticker] ??= []).push({ siteId: to, amount: -amount });

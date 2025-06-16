@@ -7,7 +7,7 @@ import PrunButton from '@src/components/PrunButton.vue';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { getEntityNameFromAddress } from '@src/infrastructure/prun-api/data/addresses';
-import { getPlanetBurn, MaterialBurn } from '@src/core/burn';
+import { getPlanetBurn } from '@src/core/burn';
 import { fixed2 } from '@src/utils/format';
 import ColoredIcon from '@src/components/ColoredIcon.vue';
 import { getAssignments } from '@src/store/production-assignments';

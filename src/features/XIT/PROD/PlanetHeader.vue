@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { PlanetBurn } from '@src/core/burn';
-import { countDays } from '@src/features/XIT/BURN/utils';
 import {
   getExportMassTotal,
   getExportVolumeTotal,

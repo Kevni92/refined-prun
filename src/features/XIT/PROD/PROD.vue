@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getPlanetBurn, type MaterialBurn, type PlanetBurn } from '@src/core/burn';
+import { getPlanetBurn } from '@src/core/burn';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
-import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
-import {
-  getEntityNameFromAddress,
-  getEntityNaturalIdFromAddress,
-} from '@src/infrastructure/prun-api/data/addresses';
 import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { isDefined, isEmpty } from 'ts-extras';
 import LoadingSpinner from '@src/components/LoadingSpinner.vue';
