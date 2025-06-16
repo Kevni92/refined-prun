@@ -134,9 +134,11 @@ export async function closeWhenDone(window: HTMLDivElement, options?: ShowBuffer
 
   const buttons = _$$(window, C.Window.button);
   const closeButton = buttons.find(x => x.textContent === 'x');
+
   if (closeButton) {
     closeButton?.click();
   }
+
   await new Promise<void>(resolve => onNodeDisconnected(window, resolve));
 }
 

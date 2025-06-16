@@ -7,7 +7,8 @@ import Commands from '@src/components/forms/Commands.vue';
 import { shipsStore } from '@src/infrastructure/prun-api/data/ships';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { serializeShip } from '@src/features/XIT/ACT/actions/sfc/utils';
-import { transferMaterialsViaMtra } from '@src/core/mtra-transfer';
+import { transferMaterialsViaMtra, dumpCargo } from '@src/core/mtra-transfer';
+import { requestTile } from '../ACT/runner/tile-allocator';
 
 const { action } = defineProps<{ action: UserData.FlightrouteAction }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
@@ -34,6 +35,10 @@ async function execute() {
     .getByAddressableId(action.destination)
     ?.find(s => s.type === 'STORE' || s.type === 'WAREHOUSE_STORE');
   if (!shipStore || !destStore) return;
+
+  if (action.dumpCargo === true) {
+    await dumpCargo(shipsStore.getById(selectedShip.value)?.registration!);
+  }
 
   for (const t of action.transfers ?? []) {
     const from = t.direction === 'IN' ? destStore.id : shipStore.id;
