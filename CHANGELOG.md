@@ -1,10 +1,33 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 25.6.9.1558
 
 ### Fixed
 
 - `XIT PROD`: Prevent selecting the same site for import or export assignments
+=======
+## 25.6.18
+
+### Added
+
+- `exp-expert-eta`: (new) Displays ETA for the next expert to appear
+- `show-space-remaining`: (new) Shows the remaining weight and volume capacity of the selected store in INV and SHPI
+- `wf-workforce-filters`: (new) Adds filters to hide zero workforce types and consumables
+
+### Changed
+
+- `XIT ACT`: Add a Refuel action
+- `custom-left-sidebar`: Add ACT, BURN, and REP to the default left sidebar buttons
+- `input-math`: Add "k" replacement for 1000 in math expressions
+
+### Fixed
+
+- `XIT BURN`: Fix Burn values being incorrect in some occasions
+- `XIT CXTS`: Fix Amount column not being formatted properly
+- `other-context-notification-count`: Fix notification count sometimes including deleted notifications
+- Fix date/time/number formatting not respecting the selected language
+>>>>>>> origin/main
 
 ## 25.6.9.1557
 
@@ -491,7 +514,7 @@
 - `XIT SHEETS`: Displays Google Sheets in minimalist mode.
 - Clicking on the APEX logo opens player company information.
 - Prices are calculated with VWAP formula over all exchanges, leading to more stable equity values.
-- Equity includes ships, HQ upgrades and APEX Representation Center. A new "Liquidation Value"
+- Equity includes ships, HQ upgrades, and APEX Representation Center. A new "Liquidation Value"
   metric is added to represent the old equity metric.
 - Blocked/Shipped materials are included in assets.
 - Materials in "Pick up shipment" contract condition are included in assets.

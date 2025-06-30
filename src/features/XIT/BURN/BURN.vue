@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FilterButton from '@src/features/XIT/BURN/FilterButton.vue';
+import RadioItem from '@src/components/forms/RadioItem.vue';
 import { getPlanetBurn, MaterialBurn } from '@src/core/burn';
 import { comparePlanets } from '@src/util';
 import BurnSection from '@src/features/XIT/BURN/BurnSection.vue';
@@ -105,6 +105,7 @@ function onExpandAllClick() {
   <LoadingSpinner v-if="sites === undefined" />
   <template v-else>
     <div :class="C.ComExOrdersPanel.filter">
+<<<<<<< HEAD
       <FilterButton v-model="red">RED</FilterButton>
       <FilterButton v-model="yellow">YELLOW</FilterButton>
       <FilterButton v-model="green">GREEN</FilterButton>
@@ -112,6 +113,12 @@ function onExpandAllClick() {
         <Passive label="Filter:">
             <TextInput v-model="materialFilter" dark />
         </Passive>
+=======
+      <RadioItem v-model="red" horizontal>RED</RadioItem>
+      <RadioItem v-model="yellow" horizontal>YELLOW</RadioItem>
+      <RadioItem v-model="green" horizontal>GREEN</RadioItem>
+      <RadioItem v-model="inf" horizontal>INF</RadioItem>
+>>>>>>> origin/main
     </div>
     <table>
       <thead>

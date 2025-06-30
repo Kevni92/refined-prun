@@ -1,7 +1,11 @@
 import './actions/cx-buy/cx-buy';
 import './actions/cx-sell/cx-sell';
 import './actions/mtra/mtra';
+<<<<<<< HEAD
 import './actions/sfc/sfc';
+=======
+import './actions/refuel/refuel';
+>>>>>>> origin/main
 
 import './material-groups/repair/repair';
 import './material-groups/resupply/resupply';
